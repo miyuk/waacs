@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 import json
 
-
+#issuer.cfgを読み込むためにカレントディレクトリ変更
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 config = ConfigParser.SafeConfigParser()
 config.read("./issuer.cfg")
@@ -39,6 +39,8 @@ def main(argc, argv):
         raw_input()
 
 def issue_user():
+    #serverに接続
+    #TODO: 失敗してもなにか送る
     client = tlsclient.TlsClient()
     client.connect(server_address, server_port)
     request = dict()
@@ -49,6 +51,7 @@ def issue_user():
     client.write(json_text)
     data = client.read()
     response = json.loads(data)
+    #reponseのstatusがOKならパラメータを取得して返す
     if response["status"] == "OK":
         user_id = response["userId"]
         password = response["password"]

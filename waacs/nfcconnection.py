@@ -11,6 +11,8 @@ import nfcserver
 import logging
 logger = logging.getLogger(__name__)
 
+#呼び出しは1回のみでNFCデバイスをロックする
+#プログラム終了後にロックが解除される
 class NfcConnection(object):
     WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
 

@@ -33,8 +33,10 @@ def main(argc, argv):
     listener.start()
     while True:
         client = listener.accept()
+        #issuerからの取得データはすべてJSON形式
         data = client.read()
         request = json.loads(data)
+        #REQUEST_USERならユーザ発行
         if request["action"] == "REQUEST_USER":
             issuer_id = request["issuerId"]
             issuer_password = request["issuerPassword"]
