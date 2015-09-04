@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-lib_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+lib_dir = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(1, lib_dir)
 import waacs
 from waacs import nfcclient, nfcserver, nfcconnection, parameter, tlsclient, stringutils
@@ -15,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 import json
 
-#issuer.cfgを読み込むためにカレントディレクトリ変更
+# issuer.cfgを読み込むためにカレントディレクトリ変更
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 config = ConfigParser.SafeConfigParser()
 config.read("./issuer.cfg")
@@ -24,6 +25,7 @@ issuer_id = config.get("IssuerAuth", "issuer_id")
 issuer_password = config.get("IssuerAuth", "issuer_password")
 server_address = config.get("TlsClient", "server_address")
 server_port = config.getint("TlsClient", "server_port")
+
 
 def main(argc, argv):
     log_init()
@@ -38,9 +40,10 @@ def main(argc, argv):
         nfc_conn.close()
         raw_input()
 
+
 def issue_user():
-    #serverに接続
-    #TODO: 失敗してもなにか送る
+    # serverに接続
+    # TODO: 失敗してもなにか送る
     client = tlsclient.TlsClient()
     client.connect(server_address, server_port)
     request = dict()
@@ -51,7 +54,7 @@ def issue_user():
     client.write(json_text)
     data = client.read()
     response = json.loads(data)
-    #reponseのstatusがOKならパラメータを取得して返す
+    # reponseのstatusがOKならパラメータを取得して返す
     if response["status"] == "OK":
         user_id = response["userId"]
         password = response["password"]
@@ -68,13 +71,14 @@ def issue_user():
     param.expiration_time = expiration_time
     return param
 
+
 def log_init():
     loglevel = logging.DEBUG
     format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
     date_format = "%H:%M:%S"
     logging.basicConfig(level=loglevel,
-        format=format,
-        datefmt=date_format)
+                        format=format,
+                        datefmt=date_format)
 
 if __name__ == '__main__':
     argv = sys.argv

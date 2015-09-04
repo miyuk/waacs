@@ -11,8 +11,10 @@ import nfcserver
 import logging
 logger = logging.getLogger(__name__)
 
-#呼び出しは1回のみでNFCデバイスをロックする
-#プログラム終了後にロックが解除される
+# 呼び出しは1回のみでNFCデバイスをロックする
+# プログラム終了後にロックが解除される
+
+
 class NfcConnection(object):
     WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
 
@@ -27,7 +29,7 @@ class NfcConnection(object):
             logger.warn("already connected to NFC")
             return False
         logger.debug("connecting NFC")
-        llc = self.clf.connect(llcp={"on-connect":self.on_connect})
+        llc = self.clf.connect(llcp={"on-connect": self.on_connect})
         if llc is None:
             logger.error("can't connect NFC")
             return False
@@ -58,6 +60,7 @@ class NfcConnection(object):
         return payload
 
     def send_waacs_message(self, json_text):
-       record = nfc.ndef.Record(record_type=self.WAACS_MESSAGE_RECORD_TYPE, data=json_text)
-       message = nfc.ndef.Message(record)
-       self.client.send(message)
+        record = nfc.ndef.Record(
+            record_type=self.WAACS_MESSAGE_RECORD_TYPE, data=json_text)
+        message = nfc.ndef.Message(record)
+        self.client.send(message)
