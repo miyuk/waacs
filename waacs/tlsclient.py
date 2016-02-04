@@ -3,14 +3,17 @@ import socket
 import ssl
 import logging
 logger = logging.getLogger(__name__)
+
+
 class TlsClient(object):
+
     def __init__(self, sock=None):
         if sock != None:
             self.client_sock = sock
             self.is_connected = True
         else:
             self.client_sock = ssl.wrap_socket(sock=socket.socket(),
-                ssl_version=ssl.PROTOCOL_TLSv1)
+                                               ssl_version=ssl.PROTOCOL_TLSv1)
             self.is_connected = False
 
     def connect(self, host, port):
@@ -35,6 +38,7 @@ class TlsClient(object):
             return
         self.client_sock.write(data)
         logger.info("write data: \"%s\"", data)
+
     def read(self):
         if not self.is_connected:
             logger.warn("no connected")

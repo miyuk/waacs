@@ -4,7 +4,10 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 import stringutils
+
+
 class Parameter:
+
     def __init__(self):
         self.ssid = None
         self.user_id = None
@@ -44,6 +47,7 @@ class Parameter:
             tstr = json_dict[Attribute.EXPIRATION_TIME]
             parameter.EXPIRATION_TIME = stringutils.parse_time(tstr)
         return parameter
+
 
 class Attribute:
     SSID = "ssid"
