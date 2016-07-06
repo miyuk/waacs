@@ -15,7 +15,7 @@ import json
 
 
 config = ConfigParser.SafeConfigParser()
-config.read(os.path.join(sys.path[0], "issuer.cfg"))
+config.read(os.path.join(sys.path[0], "server.cfg"))
 listen_address = config.get("TlsServer", "listen_address")
 listen_port = config.getint("TlsServer", "listen_port")
 server_cert = config.get("TlsServer", "server_cert")
