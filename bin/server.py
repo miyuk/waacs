@@ -13,9 +13,8 @@ logger = logging.getLogger(__name__)
 import json
 
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-config = ConfigParser.ConfigParser()
-config.read("./server.cfg")
+config = ConfigParser.SafeConfigParser()
+config.read(os.path.join(sys.path[0], "issuer.cfg"))
 listen_address = config.get("TlsServer", "listen_address")
 listen_port = config.getint("TlsServer", "listen_port")
 server_cert = config.get("TlsServer", "server_cert")

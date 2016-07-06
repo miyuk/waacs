@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-lib_dir = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(1, lib_dir)
+sys.path.insert(1, os.path.dirname(sys.path[0]))
 import waacs
 from waacs import nfcclient, nfcserver, nfcconnection, parameter, tlsclient, stringutils
 import ConfigParser
@@ -16,10 +14,11 @@ import logging
 logger = logging.getLogger(__name__)
 import json
 
-# issuer.cfgを読み込むためにカレントディレクトリ変更
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 config = ConfigParser.SafeConfigParser()
-config.read("./issuer.cfg")
+config.read(os.path.join(sys.path[0], "issuer.cfg"))
+config = ConfigParser.SafeConfigParser()
+config.read(os.path.join(sys.path[0], "issuer.cfg"))
 ssid = config.get("NfcConnection", "ssid")
 issuer_id = config.get("IssuerAuth", "issuer_id")
 issuer_password = config.get("IssuerAuth", "issuer_password")
