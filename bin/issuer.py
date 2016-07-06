@@ -1,5 +1,6 @@
-﻿#!/usr/bin/python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import sys
 import os
 sys.path.insert(1, os.path.dirname(sys.path[0]))
