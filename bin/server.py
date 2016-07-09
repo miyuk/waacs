@@ -60,7 +60,7 @@ def main(argc, argv):
 
 
 def issue_user(db, issuer_id):
-        # ランダムなユーザ名とパスワードを作成のみ
+    # ランダムなユーザ名とパスワードを作成のみ
     user_id, password = db.create_user()
     # データベースに登録する
     issuance_time, expiration_time = db.issue_user(
@@ -69,12 +69,13 @@ def issue_user(db, issuer_id):
 
 
 def log_init():
-    loglevel = logging.DEBUG
-    format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
-    date_format = "%H:%M:%S"
-    logging.basicConfig(level=loglevel,
-                        format=format,
-                        datefmt=date_format)
+    logging.config.fileConfig("issuer_log.cfg")
+    # loglevel = logging.DEBUG
+    # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
+    # date_format = "%H:%M:%S"
+    # logging.basicConfig(level=loglevel,
+    #                     format=format,
+    #                     datefmt=date_format)
 
 if __name__ == '__main__':
     argv = sys.argv
