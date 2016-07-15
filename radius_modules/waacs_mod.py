@@ -27,11 +27,10 @@ def authenticate(p):
     password = get_attribute(p, "User-Password").strip('"')
     sql = "SELECT password FROM {0} WHERE user_id = '{1}'".format(USER_TBL, user_id)
     result = execute_sql(sql)[0][0]
-    # return radiusd.RLM_MODULE_OK
-    if(result == password):
-        return radiusd.RLM_MODULE_OK
-    else:
+    if(result != password):
         return radiusd.RLM_MODULE_REJECT
+
+    return radiusd.RLM_MODULE_OK
 
 
 def post_auth(p):
