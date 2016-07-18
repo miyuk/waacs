@@ -44,7 +44,7 @@ def authenticate(p):
         cursor.execute(sql)
         result = cursor.fetchall()
         # 指定台数以上がすでに接続済みでReject
-        if result is not None & & len(result) >= 3:
+        if result is not None and len(result) >= 3:
             return radiusd.RLM_MODULE_REJECT
         # 3台以内なら
         sql = "INSERT INTO {0} (user_id, mac_address, first_access_time, first_access_ap)\
