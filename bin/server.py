@@ -5,11 +5,13 @@ import sys
 import os
 sys.path.insert(1, os.path.dirname(sys.path[0]))
 import waacs
-from waacs import userdb, tlslistener, stringutils
+from waacs.db import UserDB
+from waacs.tls import TlsClient, TlsListener
 import ConfigParser
 import threading
 import socket
 import logging
+import logging.config
 logger = logging.getLogger(__name__)
 import json
 
@@ -69,7 +71,8 @@ def issue_user(db, issuer_id):
 
 
 def log_init():
-    logging.config.fileConfig("issuer_log.cfg")
+    cfg_file = os.path.join(sys.path[0], "server_log.cfg")
+    logging.config.fileConfig(cfg_file)
     # loglevel = logging.DEBUG
     # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
     # date_format = "%H:%M:%S"

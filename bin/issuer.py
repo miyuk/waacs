@@ -5,13 +5,15 @@ import sys
 import os
 sys.path.insert(1, os.path.dirname(sys.path[0]))
 import waacs
-from waacs import nfcclient, nfcserver, nfcconnection, parameter, tlsclient, stringutils
+from waacs.nfc import NfcConnection
+from waacs.tls import TlsClient, TlsListener
 import ConfigParser
 import threading
 import time
 import nfc
 import nfc.ndef
 import logging
+import logging.config
 logger = logging.getLogger(__name__)
 import json
 
@@ -29,7 +31,7 @@ server_port = config.getint("TlsClient", "server_port")
 
 def main(argc, argv):
     log_init()
-    nfc_conn = nfcconnection.NfcConnection()
+    nfc_conn = NfcConnection()
     while True:
         if not nfc_conn.connect():
             logger.warn("can't connect NFC")
@@ -73,7 +75,8 @@ def issue_user():
 
 
 def log_init():
-    logging.config.fileConfig("issuer_log.cfg")
+    cfg_file = os.path.join(sys.path[0], "issuer_log.cfg")
+    logging.config.fileConfig(cfg_file)
     # loglevel = logging.DEBUG
     # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
     # date_format = "%H:%M:%S"
