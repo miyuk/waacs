@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 import threading
 import datetime
-import stringutils
+from .. import stringutils
 
 
 class UserDB(object):

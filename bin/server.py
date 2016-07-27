@@ -30,8 +30,8 @@ db_passwd = config.get("UserDB", "password")
 
 def main(argc, argv):
     log_init()
-    db = userdb.UserDB(db_host, db_user, db_passwd)
-    listener = tlslistener.TlsListener(
+    db = UserDB(db_host, db_user, db_passwd)
+    listener = TlsListener(
         listen_address, listen_port, server_cert, server_key, ca_certs)
     listener.start()
     while True:
@@ -54,8 +54,8 @@ def main(argc, argv):
             res_dict["status"] = "OK"
             res_dict["userId"] = user_id
             res_dict["password"] = password
-            res_dict["issuanceTime"] = stringutils.format_time(issuance_time)
-            res_dict["expirationTime"] = stringutils.format_time(
+            res_dict["issuanceTime"] = waacs.format_time(issuance_time)
+            res_dict["expirationTime"] = waacs.format_time(
                 expiration_time)
             client.write(json.dumps(res_dict))
             client.close()

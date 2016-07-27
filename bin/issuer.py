@@ -46,7 +46,7 @@ def main(argc, argv):
 def issue_user():
     # serverに接続
     # TODO: 失敗してもなにか送る
-    client = tlsclient.TlsClient()
+    client = TlsClient()
     client.connect(server_address, server_port)
     request = dict()
     request["action"] = "REQUEST_USER"
@@ -60,12 +60,12 @@ def issue_user():
     if response["status"] == "OK":
         user_id = response["userId"]
         password = response["password"]
-        issuance_time = stringutils.parse_time(response["issuanceTime"])
-        expiration_time = stringutils.parse_time(response["expirationTime"])
+        issuance_time = waacs.parse_time(response["issuanceTime"])
+        expiration_time = waacs.parse_time(response["expirationTime"])
     else:
         logger.warn("can't login")
     client.close()
-    param = parameter.Parameter()
+    param = waacs.Parameter()
     param.user_id = user_id
     param.ssid = ssid
     param.password = password
@@ -77,12 +77,6 @@ def issue_user():
 def log_init():
     cfg_file = os.path.join(sys.path[0], "issuer_log.cfg")
     logging.config.fileConfig(cfg_file)
-    # loglevel = logging.DEBUG
-    # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
-    # date_format = "%H:%M:%S"
-    # logging.basicConfig(level=loglevel,
-    #                     format=format,
-    #                     datefmt=date_format)
 
 if __name__ == '__main__':
     argv = sys.argv
