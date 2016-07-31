@@ -34,13 +34,11 @@ def main(argc, argv):
     nfc_conn = NfcConnection()
     while True:
         if not nfc_conn.connect():
-            logger.warn("can't connect NFC")
-            continue
+            sys.exit(1)
         param = issue_user()
         json = param.to_json()
         nfc_conn.send_waacs_message(json)
         nfc_conn.close()
-        raw_input()
 
 
 def issue_user():
@@ -63,7 +61,7 @@ def issue_user():
         issuance_time = waacs.parse_time(response["issuanceTime"])
         expiration_time = waacs.parse_time(response["expirationTime"])
     else:
-        logger.warn("can't login")
+        logger.warn("server login password is wrong")
     client.close()
     param = waacs.Parameter()
     param.user_id = user_id
