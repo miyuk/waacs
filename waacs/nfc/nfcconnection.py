@@ -10,7 +10,6 @@ import nfcclient
 import nfcserver
 import logging
 logger = logging.getLogger(__name__)
-
 # 呼び出しは1回のみでNFCデバイスをロックする
 # プログラム終了後にロックが解除される
 
@@ -22,36 +21,44 @@ class NfcConnection(object):
         self.server = None
         self.client = None
         self.is_connected = False
+        self.llc_thread = False
         self.clf = nfc.ContactlessFrontend("usb")
 
     def connect(self):
         if self.is_connected:
-            logger.warn("already connected to NFC")
+            self.close()
+        logger.debug("NFC connecting")
+        result = self.clf.connect(llcp={"on-startup": self.on_startup,
+                                        "on-connect": self.on_connect})
+        if result is False:
+            logger.error("NFC connection failure")
             return False
-        logger.debug("connecting NFC")
-        llc = self.clf.connect(llcp={"on-connect": self.on_connect})
-        if llc is None:
-            logger.error("can't connect NFC")
-            return False
-        self.client = nfcclient.NfcClient(llc)
-        self.server = nfcserver.NfcServer(llc)
         return True
 
+    def on_startup(self, llc):
+        self.client = nfcclient.NfcClient(llc)
+        self.server = nfcserver.NfcServer(llc)
+        return llc
+
+    # on_connectでｔｈｒｅａｄブロックして処理しない
     def on_connect(self, llc):
-        logger.debug("connected NFC")
+        logger.debug("LLCP Link is successfully established by {0}".format(str(llc)))
         self.is_connected = True
-        th = threading.Thread(target=llc.run)
-        th.daemon = True
-        th.start()
+        self.llc_thread = threading.Thread(target=llc.run)
+        self.llc_thread.daemon = True
+        self.llc_thread.start()
         return False
 
     def close(self):
         if not self.is_connected:
-            logger.warn("not connected to NFC")
             return
-        self.client.close()
+        if not self.client is None:
+            self.client.close()
+            self.client = None
+            self.server = None
         self.is_connected = False
-        logger.info("closed NFC connection")
+        self.llc_thread.join()
+        logger.info("NFC connection is closed")
 
     def get_payload(self, ndef_message):
         payload = ""
