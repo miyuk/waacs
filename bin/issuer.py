@@ -1,25 +1,27 @@
-﻿#!/usr/bin/python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import sys
 import os
-lib_dir = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(1, lib_dir)
+sys.path.insert(1, os.path.dirname(sys.path[0]))
 import waacs
-from waacs import nfcclient, nfcserver, nfcconnection, parameter, tlsclient, stringutils
+from waacs.nfc import NfcConnection
+from waacs.tls import TlsClient, TlsListener
 import ConfigParser
 import threading
 import time
 import nfc
 import nfc.ndef
 import logging
+import logging.config
 logger = logging.getLogger(__name__)
 import json
 
-# issuer.cfgを読み込むためにカレントディレクトリ変更
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 config = ConfigParser.SafeConfigParser()
-config.read("./issuer.cfg")
+config.read(os.path.join(sys.path[0], "issuer.cfg"))
+config = ConfigParser.SafeConfigParser()
+config.read(os.path.join(sys.path[0], "issuer.cfg"))
 ssid = config.get("NfcConnection", "ssid")
 issuer_id = config.get("IssuerAuth", "issuer_id")
 issuer_password = config.get("IssuerAuth", "issuer_password")
@@ -29,22 +31,20 @@ server_port = config.getint("TlsClient", "server_port")
 
 def main(argc, argv):
     log_init()
-    nfc_conn = nfcconnection.NfcConnection()
+    nfc_conn = NfcConnection()
     while True:
         if not nfc_conn.connect():
-            logger.warn("can't connect NFC")
-            continue
+            sys.exit(1)
         param = issue_user()
         json = param.to_json()
         nfc_conn.send_waacs_message(json)
         nfc_conn.close()
-        raw_input()
 
 
 def issue_user():
     # serverに接続
     # TODO: 失敗してもなにか送る
-    client = tlsclient.TlsClient()
+    client = TlsClient()
     client.connect(server_address, server_port)
     request = dict()
     request["action"] = "REQUEST_USER"
@@ -58,12 +58,12 @@ def issue_user():
     if response["status"] == "OK":
         user_id = response["userId"]
         password = response["password"]
-        issuance_time = stringutils.parse_time(response["issuanceTime"])
-        expiration_time = stringutils.parse_time(response["expirationTime"])
+        issuance_time = waacs.parse_time(response["issuanceTime"])
+        expiration_time = waacs.parse_time(response["expirationTime"])
     else:
-        logger.warn("can't login")
+        logger.warn("server login password is wrong")
     client.close()
-    param = parameter.Parameter()
+    param = waacs.Parameter()
     param.user_id = user_id
     param.ssid = ssid
     param.password = password
@@ -73,12 +73,8 @@ def issue_user():
 
 
 def log_init():
-    loglevel = logging.DEBUG
-    format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
-    date_format = "%H:%M:%S"
-    logging.basicConfig(level=loglevel,
-                        format=format,
-                        datefmt=date_format)
+    cfg_file = os.path.join(sys.path[0], "issuer_log.cfg")
+    logging.config.fileConfig(cfg_file)
 
 if __name__ == '__main__':
     argv = sys.argv

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+import waacs
 import json
 import datetime
 import logging
 logger = logging.getLogger(__name__)
-import stringutils
 
 
 class Parameter:
@@ -24,10 +24,10 @@ class Parameter:
         if self.password is not None:
             json_dict[Attribute.PASSWORD] = self.password
         if self.issuance_time is not None:
-            tstr = stringutils.format_time(self.issuance_time)
+            tstr = waacs.format_time(self.issuance_time)
             json_dict[Attribute.ISSUANCE_TIME] = tstr
         if self.expiration_time is not None:
-            tstr = stringutils.format_time(self.expiration_time)
+            tstr = waacs.format_time(self.expiration_time)
             json_dict[Attribute.EXPIRATION_TIME] = tstr
         json_text = json.dumps(json_dict)
         return json_text
@@ -42,10 +42,10 @@ class Parameter:
             parameter.password = json_dict[Attribute.PASSWORD]
         if json_dict.has_key(Attribute.ISSUANCE_TIME):
             tstr = json_dict[Attribute.ISSUANCE_TIME]
-            parameter.ISSUANCE_TIME = stringutils.parse_time(tstr)
+            parameter.ISSUANCE_TIME = waacs.parse_time(tstr)
         if json_dict.has_key(Attribute.EXPIRATION_TIME):
             tstr = json_dict[Attribute.EXPIRATION_TIME]
-            parameter.EXPIRATION_TIME = stringutils.parse_time(tstr)
+            parameter.EXPIRATION_TIME = waacs.parse_time(tstr)
         return parameter
 
 

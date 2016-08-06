@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 import threading
 import datetime
-import stringutils
+import waacs
 
 
 class UserDB(object):
@@ -60,8 +60,8 @@ class UserDB(object):
     def issue_user(self, user_id, password, issuer_id):
         # ユーザ登録
         now = datetime.datetime.now()
-        issuance_time = stringutils.format_time(now)
-        expiration_time = stringutils.format_time(
+        issuance_time = waacs.format_time(now)
+        expiration_time = waacs.format_time(
             now + self.DEFAULT_EXPIRATION)
         sql = "INSERT INTO {0} (user_id, password, access_issuer_id, issuance_time, expiration_time) VALUES('{1}', '{2}', '{3}', '{4}', '{5}')".format(
             self.USER_TBL, user_id, password, issuer_id, issuance_time, expiration_time)

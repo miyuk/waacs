@@ -1,22 +1,23 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import sys
 import os
-lib_dir = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(1, lib_dir)
-from waacs import userdb, tlslistener, stringutils
+sys.path.insert(1, os.path.dirname(sys.path[0]))
+import waacs
+from waacs.db import UserDB
+from waacs.tls import TlsClient, TlsListener
 import ConfigParser
 import threading
 import socket
 import logging
+import logging.config
 logger = logging.getLogger(__name__)
 import json
 
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-config = ConfigParser.ConfigParser()
-config.read("./server.cfg")
+config = ConfigParser.SafeConfigParser()
+config.read(os.path.join(sys.path[0], "server.cfg"))
 listen_address = config.get("TlsServer", "listen_address")
 listen_port = config.getint("TlsServer", "listen_port")
 server_cert = config.get("TlsServer", "server_cert")
@@ -29,8 +30,8 @@ db_passwd = config.get("UserDB", "password")
 
 def main(argc, argv):
     log_init()
-    db = userdb.UserDB(db_host, db_user, db_passwd)
-    listener = tlslistener.TlsListener(
+    db = UserDB(db_host, db_user, db_passwd)
+    listener = TlsListener(
         listen_address, listen_port, server_cert, server_key, ca_certs)
     listener.start()
     while True:
@@ -53,15 +54,15 @@ def main(argc, argv):
             res_dict["status"] = "OK"
             res_dict["userId"] = user_id
             res_dict["password"] = password
-            res_dict["issuanceTime"] = stringutils.format_time(issuance_time)
-            res_dict["expirationTime"] = stringutils.format_time(
+            res_dict["issuanceTime"] = waacs.format_time(issuance_time)
+            res_dict["expirationTime"] = waacs.format_time(
                 expiration_time)
             client.write(json.dumps(res_dict))
             client.close()
 
 
 def issue_user(db, issuer_id):
-        # ランダムなユーザ名とパスワードを作成のみ
+    # ランダムなユーザ名とパスワードを作成のみ
     user_id, password = db.create_user()
     # データベースに登録する
     issuance_time, expiration_time = db.issue_user(
@@ -70,12 +71,14 @@ def issue_user(db, issuer_id):
 
 
 def log_init():
-    loglevel = logging.DEBUG
-    format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
-    date_format = "%H:%M:%S"
-    logging.basicConfig(level=loglevel,
-                        format=format,
-                        datefmt=date_format)
+    cfg_file = os.path.join(sys.path[0], "server_log.cfg")
+    logging.config.fileConfig(cfg_file)
+    # loglevel = logging.DEBUG
+    # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
+    # date_format = "%H:%M:%S"
+    # logging.basicConfig(level=loglevel,
+    #                     format=format,
+    #                     datefmt=date_format)
 
 if __name__ == '__main__':
     argv = sys.argv
