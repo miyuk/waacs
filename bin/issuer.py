@@ -4,46 +4,48 @@
 import sys
 import os
 sys.path.insert(1, os.path.dirname(sys.path[0]))
+from ConfigParser import SafeConfigParser
+import json
+import logging
+from logging.config import fileConfig
+logger = logging.getLogger(__name__)
 import waacs
 from waacs.nfc import NfcConnection
 from waacs.tls import TlsClient, TlsListener
-import ConfigParser
-import threading
-import time
-import nfc
-import nfc.ndef
-import logging
-import logging.config
-logger = logging.getLogger(__name__)
-import json
 
-
-config = ConfigParser.SafeConfigParser()
-config.read(os.path.join(sys.path[0], "issuer.cfg"))
-config = ConfigParser.SafeConfigParser()
-config.read(os.path.join(sys.path[0], "issuer.cfg"))
+config = SafeConfigParser()
+config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 ssid = config.get("NfcConnection", "ssid")
+android_package_name = config.get("NfcConnection", "android_package_name")
 issuer_id = config.get("IssuerAuth", "issuer_id")
 issuer_password = config.get("IssuerAuth", "issuer_password")
 server_address = config.get("TlsClient", "server_address")
 server_port = config.getint("TlsClient", "server_port")
+cfg_file = os.path.join(sys.path[0], "config/issuer_log.cfg")
+logging.config.fileConfig(cfg_file)
 
 
-def main(argc, argv):
-    log_init()
+def main(args):
     nfc_conn = NfcConnection()
-    while True:
-        if not nfc_conn.connect():
-            sys.exit(1)
-        param = issue_user()
-        json = param.to_json()
-        nfc_conn.send_waacs_message(json)
-        nfc_conn.close()
+    is_stop = False
+    while not is_stop:
+        try:
+            if not nfc_conn.connect():
+                logger.error("NFC connection error")
+                sys.exit(1)
+            param = issue_user()
+            json = param.to_json()
+            nfc_conn.send_waacs_message(json, android_package_name)
+        except KeyboardInterrupt as e:
+            Log.warn("exit by KeybordInterrupt")
+            is_stop = True
+        finally:
+            nfc_conn.close()
+    sys.exit(0)
 
 
 def issue_user():
     # serverに接続
-    # TODO: 失敗してもなにか送る
     client = TlsClient()
     client.connect(server_address, server_port)
     request = dict()
@@ -71,11 +73,5 @@ def issue_user():
     param.expiration_time = expiration_time
     return param
 
-
-def log_init():
-    cfg_file = os.path.join(sys.path[0], "issuer_log.cfg")
-    logging.config.fileConfig(cfg_file)
-
 if __name__ == '__main__':
-    argv = sys.argv
-    main(len(argv), argv)
+    main(sys.argv)

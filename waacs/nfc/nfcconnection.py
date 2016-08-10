@@ -1,53 +1,43 @@
 # -*- coding: utf-8 -*-
-import threading
-import nfc
-import nfc.clf
-import nfc.llcp
-import nfc.ndef
-import nfc.snep
-import datetime
-import nfcclient
-import nfcserver
+from threading import Thread
+from nfc import ContactlessFrontend
+from nfc.ndef import Record, UriRecord, Message
 import logging
 logger = logging.getLogger(__name__)
+import nfcclient
+import nfcserver
+
+WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
+ANDROID_APPKLICATION_RECORD_TYPE = "urn:nfc:ext:android.com:pkg"
+
+
 # 呼び出しは1回のみでNFCデバイスをロックする
 # プログラム終了後にロックが解除される
-
-
 class NfcConnection(object):
-    WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
 
     def __init__(self):
         self.server = None
         self.client = None
         self.is_connected = False
         self.llc_thread = False
-        self.clf = nfc.ContactlessFrontend("usb")
+        self.clf = ContactlessFrontend("usb")
 
     def connect(self):
         if self.is_connected:
             self.close()
         logger.debug("NFC connecting")
-        result = self.clf.connect(llcp={"on-startup": self.on_startup,
-                                        "on-connect": self.on_connect})
-        if result is False:
+        llc = self.clf.connect(llcp={"on-connect": (lambda llc: False)})
+        if llc is False:
             logger.error("NFC connection failure")
             return False
-        return True
-
-    def on_startup(self, llc):
+        logger.debug("LLCP Link is successfully established\n {0}".format(str(llc)))
+        self.is_connected = True
         self.client = nfcclient.NfcClient(llc)
         self.server = nfcserver.NfcServer(llc)
-        return llc
-
-    # on_connectでｔｈｒｅａｄブロックして処理しない
-    def on_connect(self, llc):
-        logger.debug("LLCP Link is successfully established by {0}".format(str(llc)))
-        self.is_connected = True
-        self.llc_thread = threading.Thread(target=llc.run)
+        self.llc_thread = Thread(target=llc.run)
         self.llc_thread.daemon = True
         self.llc_thread.start()
-        return False
+        return True
 
     def close(self):
         if not self.is_connected:
@@ -60,14 +50,16 @@ class NfcConnection(object):
         self.llc_thread.join()
         logger.info("NFC connection is closed")
 
-    def get_payload(self, ndef_message):
-        payload = ""
-        for record in ndef_message:
-            payload += record.data
-        return payload
-
-    def send_waacs_message(self, json_text):
-        record = nfc.ndef.Record(
-            record_type=self.WAACS_MESSAGE_RECORD_TYPE, data=json_text)
-        message = nfc.ndef.Message(record)
+    def send_waacs_message(self, json_text, android_package_name):
+        record = Record(record_type=WAACS_MESSAGE_RECORD_TYPE, data=json_text)
+        aar = self.create_aar(android_package_name)
+        message = Message((record,) + aar)
         self.client.send(message)
+
+    def create_aar(self, android_package_name):
+        uri = "https://play.google.com/store/apps/details?id={0}&feature=beam".format(
+            android_package_name)
+        record1 = UriRecord(uri)
+        record2 = Record(
+            record_type=ANDROID_APPKLICATION_RECORD_TYPE, data=android_package_name)
+        return (record1, record2)
