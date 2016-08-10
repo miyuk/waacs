@@ -4,20 +4,18 @@
 import sys
 import os
 sys.path.insert(1, os.path.dirname(sys.path[0]))
+from ConfigParser import SafeConfigParser
+import json
+import logging
+from logging.config import fileConfig
+logger = logging.getLogger(__name__)
 import waacs
 from waacs.db import UserDB
-from waacs.tls import TlsClient, TlsListener
-import ConfigParser
-import threading
-import socket
-import logging
-import logging.config
-logger = logging.getLogger(__name__)
-import json
+from waacs.tls import TlsListener
 
 
-config = ConfigParser.SafeConfigParser()
-config.read(os.path.join(sys.path[0], "server.cfg"))
+config = SafeConfigParser()
+config.read(os.path.join(sys.path[0], "config/server.cfg"))
 listen_address = config.get("TlsServer", "listen_address")
 listen_port = config.getint("TlsServer", "listen_port")
 server_cert = config.get("TlsServer", "server_cert")
@@ -26,13 +24,13 @@ ca_certs = config.get("TlsServer", "ca_certs")
 db_host = config.get("UserDB", "host")
 db_user = config.get("UserDB", "user")
 db_passwd = config.get("UserDB", "password")
+cfg_file = os.path.join(sys.path[0], "config\server_log.cfg")
+fileConfig(cfg_file)
 
 
-def main(argc, argv):
-    log_init()
+def main(args):
     db = UserDB(db_host, db_user, db_passwd)
-    listener = TlsListener(
-        listen_address, listen_port, server_cert, server_key, ca_certs)
+    listener = TlsListener(listen_address, listen_port, server_cert, server_key, ca_certs)
     listener.start()
     while True:
         client = listener.accept()
@@ -49,14 +47,12 @@ def main(argc, argv):
                 client.write(json.dumps(res_dict))
                 client.close()
                 continue
-            user_id, password, issuance_time, expiration_time = issue_user(
-                db, issuer_id)
+            user_id, password, issuance_time, expiration_time = issue_user(db, issuer_id)
             res_dict["status"] = "OK"
             res_dict["userId"] = user_id
             res_dict["password"] = password
             res_dict["issuanceTime"] = waacs.format_time(issuance_time)
-            res_dict["expirationTime"] = waacs.format_time(
-                expiration_time)
+            res_dict["expirationTime"] = waacs.format_time(expiration_time)
             client.write(json.dumps(res_dict))
             client.close()
 
@@ -70,16 +66,5 @@ def issue_user(db, issuer_id):
     return (user_id, password, issuance_time, expiration_time)
 
 
-def log_init():
-    cfg_file = os.path.join(sys.path[0], "server_log.cfg")
-    logging.config.fileConfig(cfg_file)
-    # loglevel = logging.DEBUG
-    # format = "%(asctime)8s.%(msecs)03d|[%(name)s %(lineno)d(%(levelname)s)] %(message)s"
-    # date_format = "%H:%M:%S"
-    # logging.basicConfig(level=loglevel,
-    #                     format=format,
-    #                     datefmt=date_format)
-
 if __name__ == '__main__':
-    argv = sys.argv
-    main(len(argv), argv)
+    main(sys.argv)
