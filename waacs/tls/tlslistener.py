@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import socket
+from socket import socket
 import ssl
 import logging
 logger = logging.getLogger(__name__)
-import threading
-import time
-import tlsclient
+from tlsclient import TlsClient
 
 
 class TlsListener(object):
@@ -20,7 +18,7 @@ class TlsListener(object):
         self.is_started = False
 
     def start(self):
-        self.server_sock = socket.socket()
+        self.server_sock = socket()
         self.server_sock.bind((self.listen_address, self.listen_port))
         self.server_sock.listen(5)
         self.is_started = True
@@ -37,6 +35,6 @@ class TlsListener(object):
                                         keyfile=self.keyfile,
                                         ca_certs=self.ca_certs,
                                         ssl_version=ssl.PROTOCOL_TLSv1)
-            return tlsclient.TlsClient(conn_sock)
+            return TlsClient(conn_sock)
         except Exception as e:
             logger.error(e.message + str(e))

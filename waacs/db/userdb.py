@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-import json
 import MySQLdb
 import random
-import datetime
+from datetime import datetime, timedelta
 import logging
 logger = logging.getLogger(__name__)
-import threading
-import datetime
 import waacs
 
 
@@ -16,7 +13,7 @@ class UserDB(object):
     DEVICE_TBL = "user_device"
     ISSUER_TBL = "issuer"
     SOURCE_CHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    DEFAULT_EXPIRATION = datetime.timedelta(hours=8)
+    DEFAULT_EXPIRATION = timedelta(hours=8)
 
     # コンストラクタ
     def __init__(self, host, user, passwd):
@@ -59,7 +56,7 @@ class UserDB(object):
 
     def issue_user(self, user_id, password, issuer_id):
         # ユーザ登録
-        now = datetime.datetime.now()
+        now = datetime.now()
         issuance_time = waacs.format_time(now)
         expiration_time = waacs.format_time(
             now + self.DEFAULT_EXPIRATION)
