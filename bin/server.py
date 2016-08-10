@@ -24,7 +24,7 @@ ca_certs = config.get("TlsServer", "ca_certs")
 db_host = config.get("UserDB", "host")
 db_user = config.get("UserDB", "user")
 db_passwd = config.get("UserDB", "password")
-cfg_file = os.path.join(sys.path[0], "config\server_log.cfg")
+cfg_file = os.path.join(sys.path[0], "config/server_log.cfg")
 fileConfig(cfg_file)
 
 
