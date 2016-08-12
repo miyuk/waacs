@@ -41,7 +41,7 @@ def authenticate(p):
                 USER_TBL, user_id)
             line_num = cursor.execute(sql)
             # 登録されていなければReject
-            if line_num is 0L:
+            if line_num == 0L:
                 radlog(L_AUTH, "not found user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
             result = cursor.fetchone()
@@ -49,6 +49,8 @@ def authenticate(p):
             if(result[0] != password):
                 radlog(L_AUTH, "mismatch password for user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
+            print result
+            issuance_time, authentication_time, expiration_time = result[1:]
             # すでに認証済み
             if authentication_time is not None:
                 # 有効期限切れならReject
@@ -61,7 +63,7 @@ def authenticate(p):
                     radlog(L_AUTH, "waacs authentication timeout")
                     return RLM_MODULE_REJECT
                 auth_time = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-                exp_time = datetime(datetime + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+                exp_time = (timestamp + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
                 sql = "UPDATE {0} SET authentication_time = '{1}', expiration_time = '{2}'".format(
                     USER_TBL, auth_time, exp_time)
                 cursor.execute(sql)
@@ -73,10 +75,13 @@ def authenticate(p):
                 radlog(L_AUTH, "limit of the deveices number")
                 return RLM_MODULE_REJECT
             sql = "INSERT INTO {0} (user_id, mac_address, first_access_time, first_access_ap)\
-                  VALUES ('{1}', '{2}', '{3}', '{4}')".format(user_id, mac_addr, timestamp.strftime(), ap_id)
-            cursor.execute(Sql)
+                  VALUES ('{1}', '{2}', '{3}', '{4}')".format(DEVICE_TBL, user_id, mac_addr, timestamp.strftime("%Y-%m-%d %H:%M:%S"), ap_id)
+            cursor.execute(sql)
     except Exception as e:
-        radlog(L_ERR, str(e))
+        radlog(L_ERR, str(type(e)))
+        radlog(L_ERR, str(e.message))
+        raise
+        return RLM_MODULE_REJECT
     return RLM_MODULE_OK
 
 
