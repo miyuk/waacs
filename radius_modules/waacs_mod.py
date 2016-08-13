@@ -3,6 +3,7 @@
 
 import sys
 import os
+import traceback
 import MySQLdb
 from radiusd import *
 from datetime import datetime, timedelta
@@ -32,7 +33,6 @@ def authenticate(p):
     radlog(L_INFO, timestamp)
     timestamp = " ".join(timestamp.split(" ")[:-1])  # タイムゾーン部分を削除
     timestamp = datetime.strptime(timestamp, "%b %d %Y %H:%M:%S")
-    # timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")
     ap_id = get_attribute(p, "NAS-Identifier")
     try:
         with MySQLdb.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cursor:
@@ -49,17 +49,16 @@ def authenticate(p):
             if(result[0] != password):
                 radlog(L_AUTH, "mismatch password for user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
-            print result
-            issuance_time, authentication_time, expiration_time = result[1:]
+            issuance_time, auth_time, exp_time = result[1:]
             # すでに認証済み
-            if authentication_time is not None:
+            if auth_time is not None:
                 # 有効期限切れならReject
-                if expiration_time > timestamp:
-                    radlog(L_AUTH, "expired user")
+                if exp_time > timestamp:
+                    radlog(L_AUTH, "expired user: {0}".format(user_id))
                     return RLM_MODULE_REJECT
             else:
                 # タッチから5秒以上経過でReject
-                if result[1] > issuance_time + timedelta(seconds=5):
+                if timestamp > issuance_time + timedelta(seconds=5):
                     radlog(L_AUTH, "waacs authentication timeout")
                     return RLM_MODULE_REJECT
                 auth_time = timestamp.strftime("%Y-%m-%d %H:%M:%S")
@@ -67,20 +66,28 @@ def authenticate(p):
                 sql = "UPDATE {0} SET authentication_time = '{1}', expiration_time = '{2}'".format(
                     USER_TBL, auth_time, exp_time)
                 cursor.execute(sql)
-
+            # 接続機器チェック
             sql = "SELECT mac_address FROM {0} WHERE user_id = '{1}'".format(DEVICE_TBL, user_id)
             line_num = cursor.execute(sql)
             # 台数制限でReject
             if line_num >= 3L:
-                radlog(L_AUTH, "limit of the deveices number")
+                radlog(L_AUTH, "limit of the deveices")
                 return RLM_MODULE_REJECT
+            result = cursor.fetchall()
+            if line_num > 0:
+                radlog(L_INFO, "already connected devices are {0}".format(
+                    ", ".join([v[0] for v in result])))
+            for row in result:
+                if mac_addr == row[0]:
+                    radlog(L_INFO, "already connected mac address: {0}".format(mac_addr))
+                    return RLM_MODULE_OK
             sql = "INSERT INTO {0} (user_id, mac_address, first_access_time, first_access_ap)\
-                  VALUES ('{1}', '{2}', '{3}', '{4}')".format(DEVICE_TBL, user_id, mac_addr, timestamp.strftime("%Y-%m-%d %H:%M:%S"), ap_id)
+                VALUES ('{1}', '{2}', '{3}', '{4}')".format(
+                DEVICE_TBL, user_id, mac_addr, timestamp.strftime("%Y-%m-%d %H:%M:%S"), ap_id)
             cursor.execute(sql)
     except Exception as e:
-        radlog(L_ERR, str(type(e)))
-        radlog(L_ERR, str(e.message))
-        raise
+        for line in traceback.format_exc().split("\n"):
+            radlog(L_ERR, line)
         return RLM_MODULE_REJECT
     return RLM_MODULE_OK
 
