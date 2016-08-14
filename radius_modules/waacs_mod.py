@@ -53,7 +53,7 @@ def authenticate(p):
             # すでに認証済み
             if auth_time is not None:
                 # 有効期限切れならReject
-                if exp_time > timestamp:
+                if timestamp > exp_time:
                     radlog(L_AUTH, "expired user: {0}".format(user_id))
                     return RLM_MODULE_REJECT
             else:
@@ -88,6 +88,7 @@ def authenticate(p):
                 DEVICE_TBL, user_id, mac_addr, timestamp.strftime("%Y-%m-%d %H:%M:%S"), ap_id)
             cursor.execute(sql)
     except Exception as e:
+        radlog(L_ERR, "error: {0}".format(str(e)))
         for line in traceback.format_exc().split("\n"):
             radlog(L_ERR, line)
         return RLM_MODULE_REJECT
