@@ -63,8 +63,8 @@ def authenticate(p):
                     return RLM_MODULE_REJECT
                 auth_time = timestamp.strftime("%Y-%m-%d %H:%M:%S")
                 exp_time = (timestamp + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
-                sql = "UPDATE {0} SET authentication_time = '{1}', expiration_time = '{2}'".format(
-                    USER_TBL, auth_time, exp_time)
+                sql = "UPDATE {0} SET authentication_time = '{1}', expiration_time = '{2}' WHERE user_id = '{3}'".format(
+                    USER_TBL, auth_time, exp_time, user_id)
                 cursor.execute(sql)
             # 接続機器チェック
             sql = "SELECT mac_address FROM {0} WHERE user_id = '{1}'".format(DEVICE_TBL, user_id)
@@ -77,6 +77,8 @@ def authenticate(p):
             if line_num > 0:
                 radlog(L_INFO, "already connected devices are {0}".format(
                     ", ".join([v[0] for v in result])))
+            else:
+                radlog(L_INFO, "first access")
             for row in result:
                 if mac_addr == row[0]:
                     radlog(L_INFO, "already connected mac address: {0}".format(mac_addr))
