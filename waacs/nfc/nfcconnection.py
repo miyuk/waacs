@@ -25,12 +25,12 @@ class NfcConnection(object):
     def connect(self):
         if self.is_connected:
             self.close()
-        logger.debug("NFC connecting")
+        logger.debug("NFC listen")
         llc = self.clf.connect(llcp={"on-connect": (lambda llc: False)})
         if llc is False:
             logger.error("NFC connection failure")
             return False
-        logger.debug("LLCP Link is successfully established\n {0}".format(str(llc)))
+        logger.debug("LLCP link is successfully established\n {0}".format(str(llc)))
         self.is_connected = True
         self.client = nfcclient.NfcClient(llc)
         self.server = nfcserver.NfcServer(llc)
@@ -42,6 +42,7 @@ class NfcConnection(object):
     def close(self):
         if not self.is_connected:
             return
+        logger.debug("NFC connection is closing")
         if not self.client is None:
             self.client.close()
             self.client = None
