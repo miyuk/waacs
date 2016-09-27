@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import nfc
-import nfc.snep
+from nfc.snep import SnepServer
 import logging
 logger = logging.getLogger(__name__)
 
 
-class NfcServer(nfc.snep.SnepServer):
+class NfcServer(SnepServer):
 
     def __init__(self, llc):
-        nfc.snep.server.SnepServer.__init__(self, llc)
+        SnepServer.__init__(self, llc)
         self.is_received = False
 
     def put(self, ndef_message):

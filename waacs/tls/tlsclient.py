@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import socket
+from socket import socket
 import ssl
 import logging
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ class TlsClient(object):
             self.client_sock = sock
             self.is_connected = True
         else:
-            self.client_sock = ssl.wrap_socket(sock=socket.socket(),
+            self.client_sock = ssl.wrap_socket(sock=socket(),
                                                ssl_version=ssl.PROTOCOL_TLSv1)
             self.is_connected = False
 
