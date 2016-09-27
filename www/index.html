@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>ß
+<html>
 
 <head>
     <title>WAACS QR Code</title>
@@ -72,7 +72,7 @@
 
         function zeroPadding(num, digit) {
             var zeros = "";
-            for(var i = 0; i < digit; i++){
+            for (var i = 0; i < digit; i++) {
                 zeros += "0";
             }
             return (zeros + num).substr(-digit);
@@ -80,7 +80,7 @@
     </script>
 </head>
 
-<body style="width: 800px; height:480px; margin: 0px; overflow: hidden;">ß
+<body style="width: 800px; height:480px; margin: 0px; overflow: hidden;">
     <div style="width: 450px; height:450px; background-color:lightyellow; float:left; padding: 15px;">
         <img name="test" id="qr_area" alt="QR Code" src="waacs_qr.png" height="450" width="450" />
     </div>
