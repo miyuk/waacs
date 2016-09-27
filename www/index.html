@@ -76,25 +76,21 @@
     </script>
 </head>
 
-<body>
+<body style="width: 800px; height:480px; margin: 0px; overflow: hidden;" >
+        <div style="width: 450px; height:450px; background-color:lightyellow; float:left; padding: 15px;">
+            <img name="test" id="qr_area" alt="QR Code" src="waacs_qr.png" height="450" width="450" />
+        </div>
+        <div style="width: 300px; height:460px; float: left; padding: 10px; background-color:lightcyan;">
+            <h3>WAACS QR Code</h3>
+            <p>
+                現在時刻:
+                <span id="clock_area"></span>
+            </p>
+            <p>
+                QR更新時間:
+                <span id="qr_update_time_area"></span>
+            </p>
+        </div>
 </body>
-
-<div style="width: 800px; height:480px; background-color:lightcyan;">
-    <div style="width: 450px; height:450px; background-color:lightyellow; float:left; padding: 15px;">
-        <img name="test" id="qr_area" alt="QR Code" src="waacs_qr.png" height="450" width="450" />
-    </div>
-    <div style="width: 300px; height:460px; float: left; padding: 10px;">
-        <h3>WAACS QR Code</h3>
-        <p>
-            現在時刻:
-            <span id="clock_area"></span>
-        </p>
-        <p>
-            QR更新時間:
-            <span id="qr_update_time_area"></span>
-
-        </p>
-    </div>
-</div>
 
 </html>
