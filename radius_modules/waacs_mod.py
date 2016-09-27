@@ -3,6 +3,7 @@
 
 import sys
 import os
+import re
 import traceback
 import MySQLdb
 from radiusd import *
@@ -31,6 +32,7 @@ def authenticate(p):
     user_id = get_attribute(p, "User-Name")
     password = get_attribute(p, "User-Password")
     mac_addr = get_attribute(p, "Calling-Station-Id")
+    mac_addr = format_mac_addr(mac_addr)
     timestamp = get_attribute(p, "Event-Timestamp")
     timestamp = " ".join(timestamp.split(" ")[:-1])  # タイムゾーン部分を削除
     timestamp = datetime.strptime(timestamp, "%b %d %Y %H:%M:%S")
@@ -90,6 +92,12 @@ def authenticate(p):
         for line in traceback.format_exc().split("\n"):
             radlog(L_ERR, line)
         return RLM_MODULE_REJECT
+
+
+def format_mac_addr(mac):
+    mac = re.sub("[^0-9a-fA-F]", "", mac)
+    mac = [mac[i:i + 2] for i in range(0, 12, 2)]
+    return "{0}-{1}-{2}-{3}-{4}-{5}".format(*mac)
 
 
 def post_auth(p):
