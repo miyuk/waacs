@@ -7,7 +7,17 @@
     <style type="text/css">
         * {
             box-sizing: border-box;
+            cursor: none;
+            /* CSS3 */
+            user-select: none;
+            /* Firefox */
+            -moz-user-select: none;
+            /* Safari、Chromeなど */
+            -webkit-user-select: none;
+            /* IE10かららしい */
+            -ms-user-select: none;
         }
+
         body {
             width: 800px;
             height: 480px;
@@ -19,23 +29,30 @@
             width: 640px;
             height: 480px;
             float: left;
-            padding: 20px;
+            padding: 0px 20px;
             background-color: lightcyan;
+            font-size: 32px;
         }
 
         #qr_area {
-            width: 160px;
-            height: 160px;
+            width: calc(800px - 640px);
+            height: calc(800px - 640px);
             background-color: lightyellow;
             float: left;
             padding: 10px;
         }
 
-
         #qr_img {
             text-align: center;
-            height: 140px;
-            width: 140px;
+            height: calc(800px - 640px - (2 * 10px));
+            width: calc(800px - 640px - (2 * 10px));
+        }
+
+        #blank_area {
+            height: calc(480px - 160px);
+            width: calc(800px - 640px);
+            background-color: lightgreen;
+            float: left;
         }
     </style>
     <script type="text/javascript">
@@ -118,7 +135,6 @@
 
 <body>
     <div id="info_area">
-        <h3>WAACS QR Code</h3>
         <p>
             現在時刻:
             <span id="clock_area"></span>
@@ -129,7 +145,9 @@
         </p>
     </div>
     <div id="qr_area">
-        <img id="qr_img" alt="QR Code" src="waacs_qr.png"/>
+        <img id="qr_img" alt="QR Code" src="waacs_qr.png" />
+    </div>
+    <div id="blank_area">
     </div>
 </body>
 
