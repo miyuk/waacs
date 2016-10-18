@@ -1,3 +1,14 @@
+#config files
+/bin/config/issuer_log.cfg
+/bin/config/server_log.cfg
+/bin/config/issuer.cfg
+/bin/config/server.cfg
+
+#cert files
+/bin/cert/cacert.pem
+/bin/cert/server_cert.pem
+/bin/cert/server_key.pem
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

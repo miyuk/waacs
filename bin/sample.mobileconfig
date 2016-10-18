@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>AutoJoin</key>
+			<true/>
+			<key>EAPClientConfiguration</key>
+			<dict>
+				<key>AcceptEAPTypes</key>
+				<array>
+					<integer>21</integer>
+				</array>
+				<key>EAPFASTProvisionPAC</key>
+				<false/>
+				<key>EAPFASTProvisionPACAnonymously</key>
+				<false/>
+				<key>EAPFASTUsePAC</key>
+				<false/>
+				<key>TTLSInnerAuthentication</key>
+				<string>PAP</string>
+				<key>UserName</key>
+				<string>$userId</string>
+			</dict>
+			<key>EncryptionType</key>
+			<string>WPA</string>
+			<key>HIDDEN_NETWORK</key>
+			<false/>
+			<key>PayloadDescription</key>
+			<string>Configures wireless connectivity settings.</string>
+			<key>PayloadDisplayName</key>
+			<string>WiFi (eunet)</string>
+			<key>PayloadIdentifier</key>
+			<string>jp.ac.oit.elc.mail.profile.wifi</string>
+			<key>PayloadOrganization</key>
+			<string>oit.ac.jp</string>
+			<key>PayloadType</key>
+			<string>com.apple.wifi.managed</string>
+			<key>PayloadUUID</key>
+			<string>18110BB6-2966-48AD-B0F4-5189475ED942</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>ProxyType</key>
+			<string>None</string>
+			<key>SSID_STR</key>
+			<string>mail.elc.oit.ac.jp</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>WAACS自動設定プロファイル</string>
+	<key>PayloadDisplayName</key>
+	<string>waacs.mail.elc.oit.ac.jp</string>
+	<key>PayloadIdentifier</key>
+	<string>jp.ac.oit.elc.mail.profile.wifi</string>
+	<key>PayloadOrganization</key>
+	<string>oit.ac.jp</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>7E8A8986-A40E-414D-86D8-F8922ACBCB45</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
