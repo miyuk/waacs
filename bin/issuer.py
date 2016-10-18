@@ -9,6 +9,8 @@ import json
 import logging
 from logging.config import fileConfig
 logger = logging.getLogger(__name__)
+import qrcode
+import time
 import waacs
 from waacs.nfc import NfcConnection
 from waacs.tls import TlsClient, TlsListener
@@ -18,6 +20,7 @@ config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 ssid = config.get("NfcConnection", "ssid")
 android_package_name = config.get("NfcConnection", "android_package_name")
 issuer_id = config.get("IssuerAuth", "issuer_id")
+qr_output_path = config.get("Qrcode", "output_path")
 issuer_password = config.get("IssuerAuth", "issuer_password")
 server_address = config.get("TlsClient", "server_address")
 server_port = config.getint("TlsClient", "server_port")
@@ -26,21 +29,25 @@ logging.config.fileConfig(cfg_file)
 
 
 def main(args):
-    nfc_conn = NfcConnection()
+    # nfc_conn = NfcConnection()
     is_stop = False
     while not is_stop:
-        try:
-            if not nfc_conn.connect():
-                logger.error("NFC connection error")
-                sys.exit(1)
-            param = issue_user()
-            json = param.to_json()
-            nfc_conn.send_waacs_message(json, android_package_name)
-        except KeyboardInterrupt as e:
-            Log.warn("exit by KeybordInterrupt")
-            is_stop = True
-        finally:
-            nfc_conn.close()
+        param = issue_user()
+        qr = qrcode.make(param)
+        qr.save(qr_output_path)
+        time.sleep(1)
+        # try:
+        #     if not nfc_conn.connect():
+        #         logger.error("NFC connection error")
+        #         sys.exit(1)
+        #     param = issue_user()
+        #     json = param.to_json()
+        #     nfc_conn.send_waacs_message(json, android_package_name)
+        # except KeyboardInterrupt as e:
+        #     Log.warn("exit by KeybordInterrupt")
+        #     is_stop = True
+        # finally:
+        #     nfc_conn.close()
     sys.exit(0)
 
 
