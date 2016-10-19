@@ -16,6 +16,9 @@ import pdb
 from threading import Thread
 file_path = "sample.mobileconfig"
 
+HOST = "localhost"
+USER = "waacs"
+PASSWD = "waacs"
 DB = "waacs"
 USER_TBL = "user"
 DEVICE_TBL = "user_device"
@@ -37,38 +40,52 @@ def after(req, res, resource):
 
 class QrScanApi(object):
 
-    def __init__(self):
-        self.db_conn_args = {}
-        self.db_conn_args["user"] = "waacs"
-        self.db_conn_args["passwd"] = "waacs"
-        self.db_conn_args["db"] = "waacs"
-        self.db_conn_args["host"] = "localhost"
+    @property
+    def db_conn_args(self):
+        return {"user": self.ueer, "passwd": self.passwd, "db": self.waacs, "host": self.localhost}
 
-    @falcon.before(before)
-    @falcon.after(after)
+    def __init__(self, host, user, passwd, db):
+        self.host = host
+        self.user = user
+        self.passwd = passwd
+        self.db = db
+
+    # @falcon.before(before)
+    # @falcon.after(after)
     def on_get(self, req, resp, token):
-        if "iPhone" in req.user_agent:
+        with db.connect(**Self.db_conn_arg) as cur:
+            cur.execute("SELECT user_id FROM token WHERE token = %s", token)
+            user_id = cur.fetchone()[0]
+            if not user_id:
+                logger.warning("not found token: %s", token)
+                resp.status = falcon.HTTP_401
+                return
+        if "iPhone" in req.user_agent or True:
             resp.status = falcon.HTTP_301
-            resp.location = "/download_mobileconfig/{0}/".format(token)
-        with db.connect(**self.db_conn_args) as cursor:
+            resp.location = "/download_mobileconfig/{0}/".format(user_id)
 
 
 class DownloadMobleconfigApi(object):
 
-    def on_get(self, req, resp, userId):
+    def on_get(self, req, resp, user_id):
         resp.content_type = "application/x-apple-aspen-config"
         config = open(file_path).read()
-        config = config.replace("$userId", userId)
+        config = config.replace("$userId", user_id).replace("$userPassword", userId)
         resp.body = config
+
+
+class IssueTokenApi(object):
+
+    def on_post(self):
 
 
 def main(argv):
     app = falcon.API()
-    app.add_route("/qr_scan/{token}", QrScanApi())
-    app.add_route("/download_mobileconfig/{userId}/", DownloadMobleconfigApi())
-    httpd = simple_server.make_server("150.89.94.224", 80, app)
-    th = Thread(target=httpd.serve_forever)
-    th.daemon = True
+    app.add_route("/qr_scan/{token}", QrScanApi(HOST, USER, PASSWD, DB)
+    app.add_route("/download_mobileconfig/{user_id}/", DownloadMobleconfigApi())
+    httpd=simple_server.make_server("150.89.94.224", 80, app)
+    th=Thread(target=httpd.serve_forever)
+    th.daemon=True
     th.start()
     while(True):
         pass

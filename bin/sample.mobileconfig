@@ -23,6 +23,8 @@
 				<string>PAP</string>
 				<key>UserName</key>
 				<string>$userId</string>
+				<key>userPassword</key>
+				<string>$userPassword</string>
 			</dict>
 			<key>EncryptionType</key>
 			<string>WPA</string>
