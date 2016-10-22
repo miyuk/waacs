@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from threading import Thread
+from threading import Thread, Event
 from nfc import ContactlessFrontend
 from nfc.ndef import Record, UriRecord, Message
 from datetime import datetime, timedelta
@@ -15,10 +15,10 @@ class NfcIssuer(Thread):
     def __init__(self, server_address, server_port, issuer_id, issuer_password):
         super(NfcIssuer, self).__init__()
         self.api_client = ApiClient(server_address, server_port, issuer_id, issuer_password)
-        self.daemon = True
+        self.stop_event = Event()
 
     def run(self):
-        while True:
+        while not self.stop_event.is_set:
             with ContactlessFrontend("usb") as clf:
                 started = datetime.now()
                 after5s = lambda: datetime.now() - started > timedelta(seconds=5)
@@ -38,3 +38,6 @@ class NfcIssuer(Thread):
                 looger.debug("LLCP link is closing")
                 self.llc_thread.join()
                 logger.debug("LLCP link is closed")
+
+    def stop(self):
+        self.stop_event.set()

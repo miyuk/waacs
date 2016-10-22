@@ -30,8 +30,12 @@ def main(argv):
     qr_issuer = QrIssuer(server_address, server_port, issuer_id, issuer_password,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
-    while True:
-        pass
+    try:
+        while True:
+            pass
+    finally:
+        nfc_issuer.stop()
+        qr_issuer.stop()
 
 if __name__ == '__main__':
     main(sys.argv)
