@@ -29,7 +29,7 @@ class RequestWifiApi(object):
                 return
             while True:
                 user_id = "".join([random.choice(api.SOURCE_CHAR) for x in range(10)])
-                cur.execute("SELECT COUNT(*) FROM user WHERE user_id = %s", user_id):
+                cur.execute("SELECT COUNT(*) FROM user WHERE user_id = %s", user_id)
                 if cur.fetchone()[0] == 0:
                     break
             password = "".joing([random.choice(api.SOURCE_CHAR) for x in range(10)])
