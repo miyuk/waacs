@@ -8,6 +8,7 @@ import json
 import random
 import api
 
+
 class IssueTokenApi(object):
 
     @property
@@ -43,7 +44,7 @@ class IssueTokenApi(object):
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             while True:
-                token = "".join([random.choice(api.SOURCE_CHAR) for x in range(10)])
+                token = "".join([random.choice(api.SOURCE_CHAR) for x in range(32)])
                 cur.execute("SELECT COUNT(*) FROM token WHERE token = %s", token)
                 if cur.fetchone()[0] == 0:
                     break
