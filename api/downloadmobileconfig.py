@@ -3,7 +3,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-templete_file_path = "./templete.mobileconfig"
+templete_file_path = "./template.mobileconfig"
 
 
 def make_mobileconfig(ssid, user_id, password):
