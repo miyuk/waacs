@@ -19,7 +19,9 @@ class NfcIssuer(Thread):
     def run(self):
         while True:
             with ContactlessFrontend("usb") as clf:
-                llc = clf.connect(llcp={"on-connect": (lambda llc: False)})
+                started = datetime.now()
+                llc = clf.connect(llcp={"on-connect": (lambda llc: False)}
+                                  terminate=(lambda: datetime.now() - started > 5))
                 if not llc:
                     logger.error("NFC connection failure")
                     return
