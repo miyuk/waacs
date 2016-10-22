@@ -6,7 +6,7 @@ import MySQLdb as db
 from datetime import datetime, timedelta
 import json
 import random
-
+import api
 
 class RequestWifiApi(object):
 
@@ -28,10 +28,11 @@ class RequestWifiApi(object):
                 resp.status = falcon.HTTP_401
                 return
             while True:
-                user_id = "".join([random.choice(SOURCE_CHAR) for x in range(10)])
-                if cur.execute("SELECT COUNT(*) FROM user WHERE user_id = %s", user_id):
+                user_id = "".join([random.choice(api.SOURCE_CHAR) for x in range(10)])
+                cur.execute("SELECT COUNT(*) FROM user WHERE user_id = %s", user_id):
+                if cur.fetchone()[0] == 0:
                     break
-            password = "".joing([random.choice(SOURCE_CHAR) for x in range(10)])
+            password = "".joing([random.choice(api.SOURCE_CHAR) for x in range(10)])
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
                         user_id, password, now.strftime("%Y-%m-%d %H:%M:%S"))
         if "iPhone" in req.user_agent or True:
