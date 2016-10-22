@@ -23,7 +23,7 @@ class NfcIssuer(Thread):
             try:
                 with ContactlessFrontend("usb") as clf:
                     started = time()
-                    after5s = lambda: (time() - started > 5) or self.stop_event.is_set()
+                    after5s = lambda: ((time() - started > 5) or self.stop_event.is_set())
                     llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
                                       terminate=after5s)
                     if not llc:
