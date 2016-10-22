@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 from threading import Thread, Event
 import time
 from nfc import ContactlessFrontend
@@ -22,10 +23,13 @@ class QrIssuer(Thread):
 
     def run(self):
         while not self.stop_event.is_set():
-            token, issuance_time = self.api_client.issue_token()
-            qr_img = qrcode.make(self.api_client.requestwifi_url(token))
-            qr_img.save(self.qr_output_path)
-            self.stop_event.wait(self.update_inteval)
+            try:
+                token, issuance_time = self.api_client.issue_token()
+                qr_img = qrcode.make(self.api_client.requestwifi_url(token))
+                qr_img.save(self.qr_output_path)
+                self.stop_event.wait(self.update_inteval)
+            except:
+                logger.error("error: %s", sys.exc_info())
         logger.info("process is stopped")
 
     def stop(self):
