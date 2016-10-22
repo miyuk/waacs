@@ -10,7 +10,7 @@ from logging.config import fileConfig
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 logger = logging.getLogger(__name__)
 from wsgiref import simple_server
-from threading imoprt Thread
+from threading import Thread
 import falcon
 import api
 
