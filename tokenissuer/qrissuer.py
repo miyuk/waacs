@@ -21,11 +21,13 @@ class QrIssuer(Thread):
         self.stop_event = Event()
 
     def run(self):
-        while not self.stop_event.is_set:
+        while not self.stop_event.is_set():
             token, issuance_time = self.api_client.issue_token()
             qr_img = qrcode.make(self.api_client.requestwifi_url(token))
             qr_img.save(self.qr_output_path)
             self.stop_event.wait(self.update_inteval)
+        logger.info("process is stopped")
 
     def stop(self):
+        logger.debug("process is stopping")
         self.stop_event.set()

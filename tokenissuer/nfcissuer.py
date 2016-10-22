@@ -18,7 +18,7 @@ class NfcIssuer(Thread):
         self.stop_event = Event()
 
     def run(self):
-        while not self.stop_event.is_set:
+        while not self.stop_event.is_set():
             with ContactlessFrontend("usb") as clf:
                 started = datetime.now()
                 after5s = lambda: datetime.now() - started > timedelta(seconds=5)
@@ -38,6 +38,8 @@ class NfcIssuer(Thread):
                 looger.debug("LLCP link is closing")
                 self.llc_thread.join()
                 logger.debug("LLCP link is closed")
+        logger.info("process is stopped")
 
     def stop(self):
+        logger.debug("process is stopping")
         self.stop_event.set()

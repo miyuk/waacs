@@ -33,6 +33,9 @@ def main(argv):
     try:
         while True:
             pass
+    except KeyboardInterrupt:
+        logger.warning("exit by KeyboardInterrupt")
+        sys.exit(0)
     finally:
         nfc_issuer.stop()
         qr_issuer.stop()
