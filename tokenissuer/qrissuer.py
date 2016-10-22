@@ -28,7 +28,7 @@ class QrIssuer(Thread):
                 qr_img = qrcode.make(self.api_client.requestwifi_url(token))
                 qr_img.save(self.qr_output_path)
             except:
-                logger.error("error: %s", sys.exc_info())
+                logger.error("error: %s", sys.exc_info().message)
             finally:
                 self.stop_event.wait(self.update_inteval)
         logger.info("process is stopped")

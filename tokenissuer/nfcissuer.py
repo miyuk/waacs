@@ -41,7 +41,7 @@ class NfcIssuer(Thread):
                     th.join()
                     logger.debug("LLCP link is closed")
             except:
-                logger.error("error: %s", sys.exc_info())
+                logger.error("error: %s", sys.exc_info().message)
 
         logger.info("process is stopped")
 
