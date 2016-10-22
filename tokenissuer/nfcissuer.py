@@ -25,7 +25,7 @@ class NfcIssuer(Thread):
                 llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
                                   terminate=after5s)
                 if not llc:
-                    logger.error("NFC connection timeout and continue...")
+                    logger.warning("NFC connection timeout and continue...")
                     continue
                 logger.debug("LLCP link is successfully established\n%s", llc)
                 client = nfcclient.NfcClient(llc)
