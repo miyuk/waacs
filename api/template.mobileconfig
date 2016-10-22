@@ -24,7 +24,7 @@
 				<key>UserName</key>
 				<string>$userId</string>
 				<key>userPassword</key>
-				<string>$userPassword</string>
+				<string>$password</string>
 			</dict>
 			<key>EncryptionType</key>
 			<string>WPA</string>
@@ -47,7 +47,7 @@
 			<key>ProxyType</key>
 			<string>None</string>
 			<key>SSID_STR</key>
-			<string>mail.elc.oit.ac.jp</string>
+			<string>$ssid</string>
 		</dict>
 	</array>
 	<key>PayloadDescription</key>
