@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 import qrcode
 import requests
 from tokenissuer import NfcIssuer, QrIssuer
+from threading import Thread
+import subprocess
 
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
@@ -30,6 +32,9 @@ def main(argv):
     qr_issuer = QrIssuer(server_address, server_port, issuer_id, issuer_password,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
+    th = Thread(target=subprocess.call, args=("startx",)
+    th.daemon=True
+    th.start()
     try:
         while True:
             pass
