@@ -1,18 +1,16 @@
 #config files
-/bin/config/issuer_log.cfg
-/bin/config/server_log.cfg
-/bin/config/issuer.cfg
-/bin/config/server.cfg
-
-#cert files
-/bin/cert/cacert.pem
-/bin/cert/server_cert.pem
-/bin/cert/server_key.pem
+/config/issuer_log.cfg
+/config/server_log.cfg
+/config/issuer.cfg
+/config/server.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# nohup
+nohup.out
 
 # C extensions
 *.so
