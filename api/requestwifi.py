@@ -12,7 +12,7 @@ class RequestWifiApi(object):
 
     @property
     def db_conn_args(self):
-        return {"user": self.ueer, "passwd": self.passwd, "db": self.waacs, "host": self.localhost}
+        return {"user": self.user, "passwd": self.passwd, "db": self.db, "host": self.host}
 
     def __init__(self, host, user, passwd, db):
         self.host = host
