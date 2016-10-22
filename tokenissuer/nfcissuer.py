@@ -3,6 +3,7 @@
 from threading import Thread
 from nfc import ContactlessFrontend
 from nfc.ndef import Record, UriRecord, Message
+from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 from tokenissuer.apiclient import ApiClient
