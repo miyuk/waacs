@@ -35,10 +35,17 @@ def main(argv):
     app.add_route("/issue_token/", issuetoken_api)
     httpd = simple_server.make_server(listen_address, listen_port, app)
     th = Thread(target=httpd.serve_forever)
-    th.daemon = True
     th.start()
-    while True:
-        pass
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        logger.warning("exit by keyboardInterrupt")
+        sys.exit(0)
+    finally:
+        httpd.shutdown()
+        th.join()
+
 
 if __name__ == '__main__':
     main(sys.argv)
