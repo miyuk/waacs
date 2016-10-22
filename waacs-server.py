@@ -21,12 +21,13 @@ listen_port = config.getint("ApiServer", "listen_port")
 db_host = config.get("UserDB", "host")
 db_user = config.get("UserDB", "user")
 db_passwd = config.get("UserDB", "password")
+db_db = config.get("UserDB", "db")
 
 
 def main(argv):
-    requestwifi_api = api.RequestWifiApi()
+    requestwifi_api = api.RequestWifiApi(db_host, db_user, db_passwd, db_db)
     downloadmobileconfig_api = api.DownloadMobleconfigApi()
-    issuetoken_api = api.IssueTokenApi()
+    issuetoken_api = api.IssueTokenApi(db_host, db_user, db_passwd, db_db)
     app = falcon.API()
     app.add_route("/request_wifi/{token}", requestwifi_api)
     app.add_route("/download_mobileconfig/{ssid}/{user_id}/{password}/", downloadmobileconfig_api)
