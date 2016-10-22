@@ -38,7 +38,7 @@ class NfcIssuer(Thread):
                     params = {"token": token, "issuance_time": issuance_time}
                     client.send_waacs_message(params)
                     looger.debug("LLCP link is closing")
-                    self.llc_thread.join()
+                    th.join()
                     logger.debug("LLCP link is closed")
             except:
                 logger.error("error: %s", sys.exc_info())
