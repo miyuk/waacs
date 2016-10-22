@@ -3,7 +3,7 @@
 from threading import Thread
 from nfc import ContactlessFrontend
 from nfc.ndef import Record, UriRecord, Message
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 logger = logging.getLogger(__name__)
 from tokenissuer.apiclient import ApiClient
@@ -21,8 +21,9 @@ class NfcIssuer(Thread):
         while True:
             with ContactlessFrontend("usb") as clf:
                 started = datetime.now()
+                after5s = lambda: datetime.now() - started > timedelta(seconds=5)
                 llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
-                                  terminate=(lambda: datetime.now() - started > 5))
+                                  terminate=after5s)
                 if not llc:
                     logger.error("NFC connection failure")
                     return
