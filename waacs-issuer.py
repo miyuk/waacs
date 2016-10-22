@@ -7,7 +7,7 @@ from ConfigParser import SafeConfigParser
 import json
 import logging
 from logging.config import fileConfig
-fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
+fileConfig(os.path.join(sys.path[0], "config/issuer_log.cfg"))
 logger = logging.getLogger(__name__)
 import qrcode
 import requests
