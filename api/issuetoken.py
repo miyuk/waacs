@@ -30,7 +30,7 @@ class IssueTokenApi(object):
             return
         with db.connect(**self.db_conn_args) as cur:
             cur.execute("SELECT password FROM issuer WHERE issuer_id = %s", issuer_id)
-            ref_issuer_password = cur.featchone()[0]
+            ref_issuer_password = cur.fetchone()[0]
             if not ref_issuer_password:
                 logger.warning("not found issuer id: %s", issuer_id)
                 resp.status = falcon.HTTP_401

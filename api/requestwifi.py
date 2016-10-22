@@ -23,7 +23,7 @@ class RequestWifiApi(object):
     def on_get(self, req, resp, token):
         with db.connect(**self.db_conn_args) as cur:
             cur.execute("SELECT COUNT(*) FROM token WHERE token = %s", token)
-            if not cur.featchone():
+            if not cur.fetchone():
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
                 return
