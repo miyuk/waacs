@@ -9,8 +9,9 @@ import logging
 from logging.config import fileConfig
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 logger = logging.getLogger(__name__)
-import falcon
 from wsgiref import simple_server
+from threading imoprt Thread
+import falcon
 import api
 
 config = SafeConfigParser()
