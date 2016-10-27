@@ -32,4 +32,4 @@ class ApiClient(object):
             raise sys.exc_info()
 
     def requestwifi_url(self, token):
-        return "https://{0}:{1}/request_wifi/{2}/".format(self.server_address, self.server_port, token)
+        return "https://{0}:{1}/request_wifi_auth/{2}/".format(self.server_address, self.server_port, token)

@@ -8,7 +8,8 @@ import json
 import random
 import api
 
-class RequestWifiApi(object):
+
+class RequestWifiAuthApi(object):
 
     @property
     def db_conn_args(self):
