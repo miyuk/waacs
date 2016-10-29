@@ -33,7 +33,7 @@ class RequestWifiAuthApi(object):
                 cur.execute("SELECT COUNT(*) FROM user WHERE user_id = %s", (user_id, ))
                 if cur.fetchone()[0] == 0:
                     break
-            password = "".joing([random.choice(api.SOURCE_CHAR) for x in range(10)])
+            password = "".join([random.choice(api.SOURCE_CHAR) for x in range(10)])
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
                         (user_id, password, now.strftime("%Y-%m-%d %H:%M:%S")))
         if "iPhone" in req.user_agent or True:
