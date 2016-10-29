@@ -5,7 +5,6 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 logger.setLevel(logging.INFO)
 from api.issuetoken import IssueTokenApi
-from api.downloadmobileconfig import DownloadMobleconfigApi
 from api.requestwifiauth import RequestWifiAuthApi
 
 HOST = "localhost"

@@ -27,11 +27,9 @@ db_db = config.get("UserDB", "db")
 
 def main(argv):
     requestwifi_api = api.RequestWifiAuthApi(db_host, db_user, db_passwd, db_db)
-    downloadmobileconfig_api = api.DownloadMobleconfigApi()
     issuetoken_api = api.IssueTokenApi(db_host, db_user, db_passwd, db_db)
     app = falcon.API()
     app.add_route("/request_wifi_auth/{token}", requestwifi_api)
-    app.add_route("/download_mobileconfig/{ssid}/{user_id}/{password}/", downloadmobileconfig_api)
     app.add_route("/issue_token/", issuetoken_api)
     httpd = simple_server.make_server(listen_address, listen_port, app)
     th = Thread(target=httpd.serve_forever)

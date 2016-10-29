@@ -9,6 +9,22 @@ import random
 import api
 
 
+MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"
+MIMETYPE_WAACSCONFIG = "application/x-waacs-config"
+
+templete_file_path = "./template.mobileconfig"
+
+
+def make_mobileconfig(ssid, user_id, password):
+    config = open(templete_file_path).read()
+    return config.replace("$ssid", ssid).replace("$userId", user_id).replace("$password", password)
+
+
+def make_waacsconfig(ssid, user_id, password):
+    config = {"ssid": ssid, "userId": user_id, "password": password}
+    return json.loads(config)
+
+
 class RequestWifiAuthApi(object):
 
     @property
@@ -38,7 +54,10 @@ class RequestWifiAuthApi(object):
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
                         (user_id, password, now.strftime("%Y-%m-%d %H:%M:%S")))
         if "iPhone" in req.user_agent or True:
-            resp.status = falcon.HTTP_301
-            resp.location = "/download_mobileconfig/{0}/".format(user_id)
-        elif "android" in req.user_agent:
-            pass
+            resp.content_type = MIMETYPE_MOBILECONFIG
+            config = make_mobileconfig(ssid, user_id, password)
+            resp.body = config
+        elif "Android" in req.user_agent:
+            resp.content_type = MIMETYPE_WAACS
+            config = make_waacsconfig(ssid, user_id, password)
+            resp.body = config
