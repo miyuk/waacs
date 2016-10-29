@@ -6,7 +6,7 @@ logger.addHandler(logging.NullHandler())
 logger.setLevel(logging.INFO)
 from api.issuetoken import IssueTokenApi
 from api.downloadmobileconfig import DownloadMobleconfigApi
-from api.requestwifi import RequestWifiApi
+from api.requestwifiauth import RequestWifiAuthApi
 
 HOST = "localhost"
 USER = "waacs"
