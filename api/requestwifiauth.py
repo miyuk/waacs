@@ -22,7 +22,7 @@ def make_mobileconfig(ssid, user_id, password):
 
 def make_waacsconfig(ssid, user_id, password):
     config = {"ssid": ssid, "userId": user_id, "password": password}
-    return json.loads(config)
+    return json.dumps(config)
 
 
 class RequestWifiAuthApi(object):

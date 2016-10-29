@@ -34,7 +34,7 @@ class NfcClient(SnepClient):
         return True
 
     def send_waacs_message(self, params):
-        json_text = json.loads(params)
+        json_text = json.dumps(params)
         record = Record(record_type=WAACS_MESSAGE_RECORD_TYPE)
         message = Message((record,) + waacs_aars)
         self.client.send(message)
