@@ -13,7 +13,7 @@ from tokenissuer.apiclient import ApiClient
 
 class QrIssuer(Thread):
 
-    def __init__(self, server_address, server_port, issuer_id, issuer_password,
+    def __init__(self, ssid, server_address, server_port, issuer_id, issuer_password,
                  qr_output_path, update_inteval=30):
         super(QrIssuer, self).__init__()
         self.api_client = ApiClient(server_address, server_port, issuer_id, issuer_password)
