@@ -29,11 +29,11 @@ server_port = config.getint("ApiClient", "server_port")
 def main(argv):
     nfc_issuer = NfcIssuer(server_address, server_port, issuer_id, issuer_password)
     nfc_issuer.start()
-    qr_issuer = QrIssuer(server_address, server_port, issuer_id, issuer_password,
+    qr_issuer = QrIssuer(ssid, server_address, server_port, issuer_id, issuer_password,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
     th = Thread(target=subprocess.call, args=("startx",))
-    th.daemon=True
+    th.daemon = True
     th.start()
     try:
         while True:

@@ -6,6 +6,7 @@ import MySQLdb as db
 from datetime import datetime, timedelta
 import json
 import random
+import falcon
 import api
 
 
@@ -37,7 +38,7 @@ class RequestWifiAuthApi(object):
         self.passwd = passwd
         self.db = db
 
-    def on_get(self, req, resp, token):
+    def on_get(self, req, resp, ssid, token):
         with db.connect(**self.db_conn_args) as cur:
             cur.execute("SELECT COUNT(*) FROM token WHERE token = %s", (token, ))
             if not cur.fetchone():
@@ -53,7 +54,7 @@ class RequestWifiAuthApi(object):
             now = datetime.now()
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
                         (user_id, password, now.strftime("%Y-%m-%d %H:%M:%S")))
-        if "iPhone" in req.user_agent or True:
+        if "iPhone" in req.user_agent:
             resp.content_type = MIMETYPE_MOBILECONFIG
             config = make_mobileconfig(ssid, user_id, password)
             resp.body = config
@@ -61,3 +62,6 @@ class RequestWifiAuthApi(object):
             resp.content_type = MIMETYPE_WAACS
             config = make_waacsconfig(ssid, user_id, password)
             resp.body = config
+        else:
+            resp.status = falcon.HTTP_401
+            resp.body = "This system is iPhone and Android only"

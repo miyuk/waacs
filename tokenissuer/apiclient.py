@@ -31,5 +31,7 @@ class ApiClient(object):
         except:
             raise sys.exc_info()
 
-    def requestwifi_url(self, token):
-        return "https://{0}:{1}/request_wifi_auth/{2}/".format(self.server_address, self.server_port, token)
+    def requestwifi_url(self, ssid, token):
+        return "https://{0}:{1}/request_wifi_auth/{2}/{3}/".format(self.server_address,
+                                                                   self.server_port,
+                                                                   ssid, token)
