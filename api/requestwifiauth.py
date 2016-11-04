@@ -59,7 +59,7 @@ class RequestWifiAuthApi(object):
             config = make_mobileconfig(ssid, user_id, password)
             resp.body = config
         elif "Android" in req.user_agent:
-            resp.content_type = MIMETYPE_WAACS
+            resp.content_type = MIMETYPE_WAACSCONFIG
             config = make_waacsconfig(ssid, user_id, password)
             resp.body = config
         else:
