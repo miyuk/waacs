@@ -16,6 +16,7 @@ class QrIssuer(Thread):
     def __init__(self, ssid, server_address, server_port, issuer_id, issuer_password,
                  qr_output_path, update_inteval=30):
         super(QrIssuer, self).__init__()
+        self.ssid = ssid
         self.api_client = ApiClient(server_address, server_port, issuer_id, issuer_password)
         self.qr_output_path = qr_output_path
         self.update_inteval = update_inteval
