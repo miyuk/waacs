@@ -26,7 +26,7 @@ class QrIssuer(Thread):
         while not self.stop_event.is_set():
             try:
                 token, issuance_time = self.api_client.issue_token()
-                qr_img = qrcode.make(self.api_client.requestwifi_url(ssid, token))
+                qr_img = qrcode.make(self.api_client.requestwifi_url(self.ssid, token))
                 qr_img.save(self.qr_output_path)
             except:
                 logger.error("error: %s", sys.exc_info())
