@@ -27,8 +27,8 @@ server_port = config.getint("ApiClient", "server_port")
 
 
 def main(argv):
-    nfc_issuer = NfcIssuer(server_address, server_port, issuer_id, issuer_password)
-    nfc_issuer.start()
+#    nfc_issuer = NfcIssuer(server_address, server_port, issuer_id, issuer_password)
+#    nfc_issuer.start()
     qr_issuer = QrIssuer(ssid, server_address, server_port, issuer_id, issuer_password,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
@@ -42,7 +42,7 @@ def main(argv):
         logger.warning("exit by KeyboardInterrupt")
         sys.exit(0)
     finally:
-        nfc_issuer.stop()
+#        nfc_issuer.stop()
         qr_issuer.stop()
 
 if __name__ == '__main__':
