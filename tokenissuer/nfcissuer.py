@@ -25,6 +25,7 @@ class NfcIssuer(Thread):
                 with ContactlessFrontend("usb") as clf:
                     token, issuance_time = self.api_client.issue_token()
                     started = time()
+
                     def terminate_check():
                         span = time() - started
                         return span > 5 or self.stop_event.is_set()
