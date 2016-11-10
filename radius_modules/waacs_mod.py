@@ -16,7 +16,7 @@ DB = "waacs"
 USER_TBL = "user"
 DEVICE_TBL = "user_device"
 ISSUER_TBL = "issuer"
-AUTH_TIMEOUT = timedelta(seconds=5)
+AUTH_TIMEOUT = timedelta(seconds=60)
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -55,7 +55,7 @@ def authenticate(p):
             issuance_time, auth_time, exp_time = result[1:]
             # すでに認証済み
             if auth_time is None:
-                # タッチから5秒以上経過でReject
+                # タッチから60秒以上経過でReject
                 if timestamp > issuance_time + AUTH_TIMEOUT:
                     radlog(L_AUTH, "waacs authentication timeout")
                     return RLM_MODULE_REJECT

@@ -9,7 +9,7 @@ import logging
 from logging.config import fileConfig
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 logger = logging.getLogger(__name__)
-from wsgiref import simple_server
+from wsgiref.simple_server import make_server, WSGIRequestHandler
 from threading import Thread
 import falcon
 import api
@@ -31,7 +31,11 @@ def main(argv):
     app = falcon.API()
     app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)
     app.add_route("/issue_token/", issuetoken_api)
-    httpd = simple_server.make_server(listen_address, listen_port, app)
+    class QuietHandler(WSGIRequestHandler):
+        def log_request(*args, **kw):
+            if args[1] != "200":
+                logger.warning("%s: %s", args[1], args[0].path)
+    httpd = make_server(listen_address, listen_port, app, handler_class=QuietHandler)
     th = Thread(target=httpd.serve_forever)
     th.start()
     try:
