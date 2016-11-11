@@ -30,7 +30,7 @@ class IssueTokenApi(object):
         except Exception as e:
             resp.status = falcon.HTTP_401
         with db.connect(**self.db_conn_args) as cur:
-            rownum = cur.execute("SELECT password FROM issuer WHERE issuer_id = %s", issuer_id)
+            rownum = cur.execute("SELECT password FROM issuer WHERE issuer_id = %s", (issuer_id, ))
             if rownum <= 0:
                 logger.warning("not found issuer id %s", issuer_id)
                 resp.status = falcon.HTTP_401
@@ -45,7 +45,7 @@ class IssueTokenApi(object):
                 return
             while True:
                 token = "".join([random.choice(api.SOURCE_CHAR) for x in range(32)])
-                cur.execute("SELECT COUNT(*) FROM token WHERE token = %s", token)
+                cur.execute("SELECT COUNT(*) FROM token WHERE token = %s", (token, ))
                 if cur.fetchone()[0] == 0:
                     break
             now = datetime.now()
