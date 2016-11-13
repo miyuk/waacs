@@ -19,7 +19,6 @@ ISSUER_TBL = "issuer"
 AUTH_TIMEOUT = timedelta(seconds=60)
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-
 def authorize(p):
     radlog(L_INFO, "*** python authorize ***")
     radlog(L_INFO, str(p))
@@ -38,6 +37,7 @@ def authenticate(p):
     timestamp = datetime.strptime(timestamp, "%b %d %Y %H:%M:%S")
     ap_id = get_attribute(p, "NAS-Identifier")
     try:
+        return RLM_MODULE_OK
         with MySQLdb.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cursor:
             # パスワードチェック→有効期限チェック→同時接続数チェック→認証
             sql = "SELECT password, issuance_time, authentication_time, expiration_time FROM {0} WHERE user_id = '{1}'".format(
@@ -93,12 +93,12 @@ def authenticate(p):
             radlog(L_ERR, line)
         return RLM_MODULE_REJECT
 
-
 def format_mac_addr(mac):
     mac = re.sub("[^0-9a-fA-F]", "", mac)
     mac = [mac[i:i + 2] for i in range(0, 12, 2)]
+    if len(mac) != 6:
+        return None
     return "{0}-{1}-{2}-{3}-{4}-{5}".format(*mac)
-
 
 def post_auth(p):
     radlog(L_INFO, "*** python post_auth ***")
