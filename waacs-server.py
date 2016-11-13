@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from threading import Thread
 import falcon
+import time
 import api
 
 config = SafeConfigParser()
@@ -43,7 +44,7 @@ def main(argv):
     th.start()
     try:
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         logger.warning("exit by keyboardInterrupt")
         sys.exit(0)
