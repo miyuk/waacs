@@ -36,12 +36,12 @@ def make_waacsconfig_ttls(ssid, user_id, password):
     return json.dumps(param.to_dict())
 
 
-def make_waacsconfig_tls(ssid, cert_filename, cert_content, cert_pass):
+def make_waacsconfig_tls(ssid, cert_name, cert_content, cert_pass):
     param = Parameter()
     param.ssid = ssid
     param.eap_type = TYPE_TLS
     tls = TlsParameter()
-    tls.client_certificate_filename = cert_filename
+    tls.client_certificate_name = cert_name
     tls.client_certificate_content = cert_content
     tls.passphrase = cert_pass
     param.tls_parameter = tls
