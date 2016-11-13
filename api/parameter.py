@@ -7,11 +7,11 @@ logger = logging.getLogger(__name__)
 import base64
 import api
 
+TYPE_TLS = "EAP-TLS"
+TYPE_TTLS = "EAP-TTLS"
+
 
 class Parameter:
-    TYPE_TLS = "EAP-TLS"
-    TYPE_TTLS = "EAP-TTLS"
-
     SSID = "ssid"
     EAP_TYPE = "eapType"
     TLS_PARAMETER = "tlsParameter"
