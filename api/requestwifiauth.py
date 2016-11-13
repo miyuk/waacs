@@ -12,7 +12,7 @@ import subprocess
 import os
 import os.path
 import api
-from parameter import Parameter, TlsParameter, TtlsParameter
+from parameter import Parameter, TlsParameter, TtlsParameter, TYPE_TLS, TYPE_TTLS
 
 MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"
 MIMETYPE_WAACSCONFIG = "application/x-waacs-config"
@@ -39,7 +39,7 @@ def make_waacsconfig_ttls(ssid, user_id, password):
 def make_waacsconfig_tls(ssid, cert_filename, cert_content, cert_pass):
     param = Parameter()
     param.ssid = ssid
-    param.eap_type = Parameter.TYPE_TLS
+    param.eap_type = TYPE_TLS
     tls = TlsParameter()
     tls.client_certificate_filename = cert_filename
     tls.client_certificate_content = cert_content
@@ -104,11 +104,12 @@ class RequestWifiAuthApi(object):
             f.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, csr))
         with open("./client.key", "w") as f:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
-        subprocess.call("make client.p12 &> /dev/null".split())
-        os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
-        crt = open("./waacs/{0}.p12".format(user_id)).read()
-        subprocess.call("make clean &> /dev/null".split())
-        passphrase = "waacs"  # TODO
+        with open(os.devnull) as devnull:
+            subprocess.call("make client.p12".split(), stdout=devnull, stderr=devnull)
+            os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
+            crt = open("./waacs/{0}.p12".format(user_id)).read()
+            subprocess.call("make clean".split(), stdout=devnull, stderr=devnull)
+            passphrase = "waacs"  # TODO
         os.chdir(last_dir)
         if "iPhone" in req.user_agent:
             resp.content_type = MIMETYPE_MOBILECONFIG
