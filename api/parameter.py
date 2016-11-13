@@ -5,7 +5,7 @@ import datetime
 import logging
 logger = logging.getLogger(__name__)
 import base64
-
+import api
 
 class Parameter:
     TYPE_TLS = "EAP-TLS"
@@ -35,9 +35,9 @@ class Parameter:
         elif self.eap_type == TYPE_TTLS:
             dct[TTLS_PARAMETER] = self.ttls_parameter.to_dict()
         if self.issuance_time:
-            dct[ISSUANCE_TIME] = format_time(self.issuance_time)
+            dct[ISSUANCE_TIME] = api.format_time(self.issuance_time)
         if self.expiration_time:
-            dct[EXPIRATION_TIME] = format_time(self.expiration_time)
+            dct[EXPIRATION_TIME] = api.format_time(self.expiration_time)
         return dct
 
     @staticmethod
@@ -50,9 +50,9 @@ class Parameter:
         elif param.eap_type == TYPE_TTLS:
             param.ttls_parameter = TtlsParameter.parse(dct[TTLS_PARAMETER])
         if ISSUANCE_TIME in dct:
-            param.issuance_time = parse_time(dct[ISSUANCE_TIME])
+            param.issuance_time = api.parse_time(dct[ISSUANCE_TIME])
         if EXPIRATION_TIME in dct:
-            param.expiration_time = parse_time(dct[EXPIRATION_TIME])
+            param.expiration_time = api.parse_time(dct[EXPIRATION_TIME])
         return param
 
 

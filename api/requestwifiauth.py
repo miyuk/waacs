@@ -12,6 +12,7 @@ import subprocess
 import os
 import os.path
 import api
+from parameter import Parameter, TlsParameter, TtlsParameter
 
 MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"
 MIMETYPE_WAACSCONFIG = "application/x-waacs-config"
@@ -41,9 +42,10 @@ def make_waacsconfig_tls(ssid, cert_filename, cert_content, cert_pass):
     param.eap_type = Parameter.TYPE_TLS
     tls = TlsParameter()
     tls.client_certificate_filename = cert_filename
-    tls.client_certificate_content = cert_content, cert_pass
+    tls.client_certificate_content = cert_content
+    tls.passphrase = cert_pass
     param.tls_parameter = tls
-    return param
+    return json.dumps(param.to_dict())
 
 
 def make_cert_req(type, bits, C, ST, O, CN):
@@ -56,6 +58,7 @@ def make_cert_req(type, bits, C, ST, O, CN):
     sbj.O = O
     sbj.CN = CN
     req.set_pubkey(key)
+    req.sign(key, "sha256")
     return req, key
 
 
@@ -93,18 +96,18 @@ class RequestWifiAuthApi(object):
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
                         (user_id, password, now.strftime("%Y-%m-%d %H:%M:%S")))
 
-        req, key = make_cert_req(
-            crypto.TYPE_RSA, 2048, "Osaka", "Osaka", "Osaka Institute of Technology", user_id)
+        csr, key = make_cert_req(
+            crypto.TYPE_RSA, 2048, "JP", "Osaka", "Osaka Institute of Technology", user_id)
         last_dir = os.path.realpath(os.getcwd())
         os.chdir(self.certs_dir)
         with open("./client.csr", "w") as f:
-            f.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, req))
+            f.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, csr))
         with open("./client.key", "w") as f:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
-        subprocess.call(
-            "make client.p12".format(user_id).split())
-        os.rename("client.p12".format(user_id), "./waacs/{0}.p12".format(user_id))
-        crt = open("./waacs/{0}".format(user_id)).read()
+        subprocess.call("make client.p12 &> /dev/null".split())
+        os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
+        crt = open("./waacs/{0}.p12".format(user_id)).read()
+        subprocess.call("make clean &> /dev/null".split())
         passphrase = "waacs"  # TODO
         os.chdir(last_dir)
         if "iPhone" in req.user_agent:

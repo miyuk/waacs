@@ -15,7 +15,6 @@ USER_TBL = "user"
 DEVICE_TBL = "user_device"
 ISSUER_TBL = "issuer"
 SOURCE_CHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
