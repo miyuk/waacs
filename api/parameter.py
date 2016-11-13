@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 import base64
 import api
 
+
 class Parameter:
     TYPE_TLS = "EAP-TLS"
     TYPE_TTLS = "EAP-TTLS"
@@ -75,7 +76,7 @@ class TlsParameter:
         return dct
 
     @classmethod
-    def parse(cls.dct):
+    def parse(cls):
         tls = TlsParameter()
         self.client_certificate_filename = dct[cls.CLIENT_CERTIFICATE_FILENAME]
         self.client_certificate_content = base64.standard_b64decode(
