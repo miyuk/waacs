@@ -28,31 +28,31 @@ class Parameter:
 
     def to_dict(self):
         dct = {}
-        dct[SSID] = self.ssid
-        dct[EAP_TYPE] = self.eap_type
+        dct[self.SSID] = self.ssid
+        dct[self.EAP_TYPE] = self.eap_type
         if self.eap_type == TYPE_TLS:
-            dct[TLS_PARAMETER] = self.tls_parameter.to_dict()
+            dct[self.TLS_PARAMETER] = self.tls_parameter.to_dict()
         elif self.eap_type == TYPE_TTLS:
-            dct[TTLS_PARAMETER] = self.ttls_parameter.to_dict()
+            dct[self.TTLS_PARAMETER] = self.ttls_parameter.to_dict()
         if self.issuance_time:
-            dct[ISSUANCE_TIME] = format_time(self.issuance_time)
+            dct[self.ISSUANCE_TIME] = format_time(self.issuance_time)
         if self.expiration_time:
-            dct[EXPIRATION_TIME] = format_time(self.expiration_time)
+            dct[self.EXPIRATION_TIME] = format_time(self.expiration_time)
         return dct
 
-    @staticmethod
-    def parse(dct):
+    @classmethod
+    def parse(cls, dct):
         param = Parameter()
-        param.ssid = dct[SSID]
-        param.eap_type = dct[EAP_TYPE]
+        param.ssid = dct[cls.SSID]
+        param.eap_type = dct[cls.EAP_TYPE]
         if param.eap_type == TYPE_TLS:
-            param.tls_parameter = TlsParameter.parse(dct[TLS_PARAMETER])
+            param.tls_parameter = TlsParameter.parse(dct[cls.TLS_PARAMETER])
         elif param.eap_type == TYPE_TTLS:
-            param.ttls_parameter = TtlsParameter.parse(dct[TTLS_PARAMETER])
+            param.ttls_parameter = TtlsParameter.parse(dct[cls.TTLS_PARAMETER])
         if ISSUANCE_TIME in dct:
-            param.issuance_time = parse_time(dct[ISSUANCE_TIME])
+            param.issuance_time = parse_time(dct[cls.ISSUANCE_TIME])
         if EXPIRATION_TIME in dct:
-            param.expiration_time = parse_time(dct[EXPIRATION_TIME])
+            param.expiration_time = parse_time(dct[cls.EXPIRATION_TIME])
         return param
 
 
@@ -68,18 +68,19 @@ class TlsParameter:
 
     def to_dict(self):
         dct = {}
-        dct[CLIENT_CERTIFICATE_FILENAME] = self.client_certificate_filename
-        dct[CLIENT_CERTIFICATE_CONTENT] = base64.standard_b64encode(self.client_certificate_content)
-        dct[PASSPHRASE] = self.passphrase
+        dct[self.CLIENT_CERTIFICATE_FILENAME] = self.client_certificate_filename
+        dct[self.CLIENT_CERTIFICATE_CONTENT] = base64.standard_b64encode(
+            self.client_certificate_content)
+        dct[self.PASSPHRASE] = self.passphrase
         return dct
 
-    @staticmethod
-    def parse(dct):
+    @classmethod
+    def parse(cls.dct):
         tls = TlsParameter()
-        self.client_certificate_filename = dct[CLIENT_CERTIFICATE_FILENAME]
+        self.client_certificate_filename = dct[cls.CLIENT_CERTIFICATE_FILENAME]
         self.client_certificate_content = base64.standard_b64decode(
-            dct[CLIENT_CERTIFICATE_CONTENT])
-        self.passphrase = dct[PASSPHRASE]
+            dct[cls.CLIENT_CERTIFICATE_CONTENT])
+        self.passphrase = dct[cls.PASSPHRASE]
         return parameter
 
 
@@ -93,13 +94,13 @@ class TtlsParameter:
 
     def to_dict(self):
         dct = {}
-        dct[USER_ID] = self.user_id
-        dct[PASSWORD] = self.password
+        dct[self.USER_ID] = self.user_id
+        dct[self.PASSWORD] = self.password
         return dct
 
-    @staticmethod
-    def parse(dct):
+    @classmethod
+    def parse(cls, dct):
         parameter = Parameter()
-        parameter.user_id = dct[USER_ID]
-        parameter.password = dct[PASSWORD]
+        parameter.user_id = dct[cls.USER_ID]
+        parameter.password = dct[cls.PASSWORD]
         return parameter
