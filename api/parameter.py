@@ -35,9 +35,9 @@ class Parameter:
         elif self.eap_type == TYPE_TTLS:
             dct[self.TTLS_PARAMETER] = self.ttls_parameter.to_dict()
         if self.issuance_time:
-            dct[self.ISSUANCE_TIME] = format_time(self.issuance_time)
+            dct[self.ISSUANCE_TIME] = api.format_time(self.issuance_time)
         if self.expiration_time:
-            dct[self.EXPIRATION_TIME] = format_time(self.expiration_time)
+            dct[self.EXPIRATION_TIME] = api.format_time(self.expiration_time)
         return dct
 
     @classmethod
@@ -50,9 +50,9 @@ class Parameter:
         elif param.eap_type == TYPE_TTLS:
             param.ttls_parameter = TtlsParameter.parse(dct[cls.TTLS_PARAMETER])
         if ISSUANCE_TIME in dct:
-            param.issuance_time = parse_time(dct[cls.ISSUANCE_TIME])
+            param.issuance_time = api.parse_time(dct[cls.ISSUANCE_TIME])
         if EXPIRATION_TIME in dct:
-            param.expiration_time = parse_time(dct[cls.EXPIRATION_TIME])
+            param.expiration_time = api.parse_time(dct[cls.EXPIRATION_TIME])
         return param
 
 
