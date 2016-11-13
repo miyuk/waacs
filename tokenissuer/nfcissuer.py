@@ -7,6 +7,7 @@ from nfc.ndef import Record, UriRecord, Message
 from time import time
 import logging
 logger = logging.getLogger(__name__)
+import traceback
 from tokenissuer.apiclient import ApiClient
 import nfcclient
 
@@ -22,10 +23,14 @@ class NfcIssuer(Thread):
         while not self.stop_event.is_set():
             try:
                 with ContactlessFrontend("usb") as clf:
+                    token, issuance_time = self.api_client.issue_token()
                     started = time()
-                    after5s = lambda: ((time() - started > 5) or self.stop_event.is_set())
+
+                    def terminate_check():
+                        span = time() - started
+                        return span > 5 or self.stop_event.is_set()
                     llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
-                                      terminate=after5s)
+                                      terminate=terminate_check)
                     if not llc:
                         logger.warning("NFC connection timeout and continue...")
                         continue
@@ -34,14 +39,13 @@ class NfcIssuer(Thread):
                     th = Thread(target=llc.run)
                     th.daemon = True
                     th.start()
-                    token, issuance_time = self.api_client.issue_token()
                     params = {"token": token, "issuance_time": issuance_time}
                     client.send_waacs_message(params)
-                    looger.debug("LLCP link is closing")
+                    logger.debug("LLCP link is closing")
                     th.join()
                     logger.debug("LLCP link is closed")
             except:
-                logger.error("error: %s", sys.exc_info())
+                logger.error("error: %s", traceback.format_exc())
         logger.info("process is stopped")
 
     def stop(self):

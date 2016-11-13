@@ -24,9 +24,12 @@ db_user = config.get("UserDB", "user")
 db_passwd = config.get("UserDB", "password")
 db_db = config.get("UserDB", "db")
 
+certs_dir = config.get("Certs", "certs_dir")
+
 
 def main(argv):
-    requestwifi_api = api.RequestWifiAuthApi(db_host, db_user, db_passwd, db_db)
+    requestwifi_api = api.RequestWifiAuthApi(
+        db_host, db_user, db_passwd, db_db, certs_dir)
     issuetoken_api = api.IssueTokenApi(db_host, db_user, db_passwd, db_db)
     app = falcon.API()
     app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)

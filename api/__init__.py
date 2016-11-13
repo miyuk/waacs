@@ -6,7 +6,7 @@ logger.addHandler(logging.NullHandler())
 logger.setLevel(logging.INFO)
 from api.issuetoken import IssueTokenApi
 from api.requestwifiauth import RequestWifiAuthApi
-
+from api.parameter import Parameter, TlsParameter, TtlsParameter
 HOST = "localhost"
 USER = "waacs"
 PASSWD = "waacs"

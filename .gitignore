@@ -4,6 +4,15 @@
 /config/issuer.cfg
 /config/server.cfg
 
+# freeradius-mods files
+/freeradius-mods/certs/*
+!/freeradius-mods/certs/README
+!/freeradius-mods/certs/bootstrap
+!/freeradius-mods/certs/Makefile
+!/freeradius-mods/certs/ca.sample.cfg
+!/freeradius-mods/certs/server.sample.cfg
+!/freeradius-mods/certs/client.sample.cfg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
