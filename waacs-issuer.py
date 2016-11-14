@@ -14,7 +14,7 @@ import requests
 from tokenissuer import NfcIssuer, QrIssuer
 from threading import Thread
 import subprocess
-
+import time
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 qr_output_path = config.get("QrIssuer", "qr_output_path")
@@ -37,7 +37,7 @@ def main(argv):
     th.start()
     try:
         while True:
-            pass
+            time.sleep(1)
     except KeyboardInterrupt:
         logger.warning("exit by KeyboardInterrupt")
         sys.exit(0)

@@ -63,13 +63,13 @@ class TlsParameter:
     PASSPHRASE = "passphrase"
 
     def __init__(self):
-        self.CLIENT_CERTIFICATE_NAME = None
+        self.client_certificate_name = None
         self.client_certificate_content = None
         self.passphrase = None
 
     def to_dict(self):
         dct = {}
-        dct[self.CLIENT_CERTIFICATE_NAME] = self.CLIENT_CERTIFICATE_NAME
+        dct[self.CLIENT_CERTIFICATE_NAME] = self.client_certificate_name
         dct[self.CLIENT_CERTIFICATE_CONTENT] = base64.standard_b64encode(
             self.client_certificate_content)
         dct[self.PASSPHRASE] = self.passphrase
@@ -78,7 +78,7 @@ class TlsParameter:
     @classmethod
     def parse(cls):
         tls = TlsParameter()
-        self.CLIENT_CERTIFICATE_NAME = dct[cls.CLIENT_CERTIFICATE_NAME]
+        self.client_certificate_name = dct[cls.CLIENT_CERTIFICATE_NAME]
         self.client_certificate_content = base64.standard_b64decode(
             dct[cls.CLIENT_CERTIFICATE_CONTENT])
         self.passphrase = dct[cls.PASSPHRASE]
