@@ -105,10 +105,10 @@ class RequestWifiAuthApi(object):
         with open("./client.key", "w") as f:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
         with open(os.devnull) as devnull:
-            subprocess.call("make client.p12".split(), stdout=devnull, stderr=devnull)
+            subprocess.call("make client.p12".split(), stdout=devnull)
             os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
             crt = open("./waacs/{0}.p12".format(user_id)).read()
-            subprocess.call("make clean".split(), stdout=devnull, stderr=devnull)
+            subprocess.call("make clean".split(), stdout=devnull)
             passphrase = "waacs"  # TODO
         os.chdir(last_dir)
         if "iPhone" in req.user_agent:
