@@ -8,6 +8,7 @@ from nfc.ndef import Record, UriRecord, Message
 import logging
 logger = logging.getLogger(__name__)
 import qrcode
+import traceback
 from tokenissuer.apiclient import ApiClient
 
 
@@ -29,7 +30,7 @@ class QrIssuer(Thread):
                 qr_img = qrcode.make(self.api_client.requestwifi_url(self.ssid, token))
                 qr_img.save(self.qr_output_path)
             except:
-                logger.error("error: %s", sys.exc_info())
+                logger.error("error: %s", traceback.format_exc())
             finally:
                 self.stop_event.wait(self.update_inteval)
         logger.info("process is stopped")
