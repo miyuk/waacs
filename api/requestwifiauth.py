@@ -27,6 +27,13 @@ def make_mobileconfig_ttls(ssid, user_id, password):
     return config.replace("$ssid", ssid).replace("$userId", user_id).replace("$password", password)
 
 
+def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass):
+    config = open(templete_tls_file_path).read()
+    cert_format_content = base64.encodestring(cert_content)
+    return config.replace("$ssid", ssid).replace("$cert_name", cert_name,)\
+        .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)
+
+
 def make_waacsconfig_ttls(ssid, user_id, password):
     param = Parameter()
     param.ssid = ssid
@@ -120,7 +127,7 @@ class RequestWifiAuthApi(object):
             resp.body = config
         elif "Android" in req.user_agent:
             resp.content_type = MIMETYPE_WAACSCONFIG
-            #config = make_waacsconfig_ttls(ssid, user_id, password)
+            # config = make_waacsconfig_ttls(ssid, user_id, password)
             config = make_waacsconfig_tls(ssid, user_id, crt, passphrase)
             resp.body = config
         else:
