@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>利用後は「一般」→「プロファイル」よりプロファイルを削除してください</string>
+	</dict>
+	<key>DurationUntilRemoval</key>
+	<integer>86400</integer>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>Password</key>
+			<string>$cert_pass</string>
+			<key>PayloadCertificateFileName</key>
+			<string>$cert_name</string>
+			<key>PayloadContent</key>
+			<data>
+$cert_content
+			</data>
+			<key>PayloadDescription</key>
+			<string>PKCS#12 フォーマットの証明書を追加します</string>
+			<key>PayloadDisplayName</key>
+			<string>$cert_name</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.security.pkcs12.8744EEC8-767C-41DA-86E1-428A6329BDDB</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.pkcs12</string>
+			<key>PayloadUUID</key>
+			<string>8744EEC8-767C-41DA-86E1-428A6329BDDB</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>PayloadCertificateFileName</key>
+			<string>ca.der</string>
+			<key>PayloadContent</key>
+			<data>
+			MIIEJzCCAw+gAwIBAgIJANYpOfRvg439MA0GCSqGSIb3DQEBBQUA
+			MFgxCzAJBgNVBAYTAkpQMQ4wDAYDVQQIEwVPc2FrYTEmMCQGA1UE
+			ChMdT3Nha2EgSW5zdGl0dXRlIG9mIFRlY2hub2xvZ3kxETAPBgNV
+			BAMTCFdBQUNTIENBMB4XDTE2MTExMzA4NTk1OVoXDTE3MDExMjA4
+			NTk1OVowWDELMAkGA1UEBhMCSlAxDjAMBgNVBAgTBU9zYWthMSYw
+			JAYDVQQKEx1Pc2FrYSBJbnN0aXR1dGUgb2YgVGVjaG5vbG9neTER
+			MA8GA1UEAxMIV0FBQ1MgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+			DwAwggEKAoIBAQDGqmgSwU+t9w1Co8ep8+MzVzsThGhgwxuCASRc
+			hoTR+HATpFNX2vL+3Pxyemx0IBDJhtBubE7DfI5ugEOFeturZtL7
+			d+QC1Kuq33pdajoo2bwMMArnDTLNHme9+4SzhQepDpzqRVhv4TU3
+			/gUIFQKamTbsNvcePc+Y3oqz/xX08OWLVYUEFMuyNS1ivR12Gx2r
+			RCfPV+p3dVAx0prctCyXcKMz8FxZnr1Uir1HVfzDpP7F/f+AEJGk
+			1sa/NzJZkytqIR5q/sTUsMdblFWT+n5+R0rylNBDx7KkhcvcuI9k
+			PkLnHGNhSAnAIFWDCg63ALwguFZq/8VRiOvmebnMxhgfAgMBAAGj
+			gfMwgfAwHQYDVR0OBBYEFMVyTVQJkJF4dUwrwZv6pwweWcMuMIGJ
+			BgNVHSMEgYEwf4AUxXJNVAmQkXh1TCvBm/qnDB5Zwy6hXKRaMFgx
+			CzAJBgNVBAYTAkpQMQ4wDAYDVQQIEwVPc2FrYTEmMCQGA1UEChMd
+			T3Nha2EgSW5zdGl0dXRlIG9mIFRlY2hub2xvZ3kxETAPBgNVBAMT
+			CFdBQUNTIENBggkA1ik59G+Djf0wDAYDVR0TBAUwAwEB/zA1BgNV
+			HR8ELjAsMCqgKKAmhiRodHRwczovL3dhYWNzLnVuZGVyLW11LmNv
+			bS93YWFjcy5jcmwwDQYJKoZIhvcNAQEFBQADggEBAGobqVOr4ue/
+			YrAbALWdgH5YB5TNeN52E70A6EVfb5oQ8P8FpZs72J/OaBUW9CEK
+			2R+WXqucU/My8npMG3oK2Um4tXijMfsyKFThEU/oC4Bmtg/zRe75
+			dhUDVqgOPIxYcpT554phXAQxVXO+lzZznTBNSFFbBDJ8NHEeG8dn
+			OmUtmGa0ATLnVEWcftwkyKGaXPr16tcZDf8VBb3gmFDBbzhdux+b
+			Y62xuDP04OaA/zpWwNuT8GCdtiTnZqbfBlF9TjvVKtsJCsbVpiKs
+			kST2UgWKHVpm1fbIspMsfCQ9tWj+UvFygjomKuYV0Ef5yHCuq/an
+			KTP7e8ENLGvuCI+8DDY=
+			</data>
+			<key>PayloadDescription</key>
+			<string>CA ルート証明書を追加します</string>
+			<key>PayloadDisplayName</key>
+			<string>WAACS CA</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.security.root.8A8133ED-1691-422B-BDED-47CE98ADC116</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.root</string>
+			<key>PayloadUUID</key>
+			<string>8A8133ED-1691-422B-BDED-47CE98ADC116</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AutoJoin</key>
+			<true/>
+			<key>CaptiveBypass</key>
+			<false/>
+			<key>EAPClientConfiguration</key>
+			<dict>
+				<key>AcceptEAPTypes</key>
+				<array>
+					<integer>13</integer>
+				</array>
+				<key>PayloadCertificateAnchorUUID</key>
+				<array>
+					<string>F05C31DD-D7F5-4059-AEB1-3A6BF9E47924</string>
+					<string>8A8133ED-1691-422B-BDED-47CE98ADC116</string>
+				</array>
+				<key>TLSTrustedServerNames</key>
+				<array>
+					<string>waacs.under-mu.com</string>
+				</array>
+			</dict>
+			<key>EncryptionType</key>
+			<string>WPA2</string>
+			<key>HIDDEN_NETWORK</key>
+			<false/>
+			<key>IsHotspot</key>
+			<false/>
+			<key>PayloadCertificateUUID</key>
+			<string>8744EEC8-767C-41DA-86E1-428A6329BDDB</string>
+			<key>PayloadDescription</key>
+			<string>Wi-Fi 設定を構成します</string>
+			<key>PayloadDisplayName</key>
+			<string>Wi-Fi</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.wifi.managed.AA0174F4-BEE6-43D0-892C-FA134188DE3D</string>
+			<key>PayloadType</key>
+			<string>com.apple.wifi.managed</string>
+			<key>PayloadUUID</key>
+			<string>AA0174F4-BEE6-43D0-892C-FA134188DE3D</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>ProxyType</key>
+			<string>None</string>
+			<key>SSID_STR</key>
+			<string>$ssid</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>WAACS Wi-Fi設定プロファイル(WAACS-Secure@MatchingFairを設定)
+WAACS-Secure@MatchingFairはEAP-TLSによる証明書での相互認証を行います。
+
+なお、WAACS-Secure@MatchingFairはサーバ証明書を受け入れるため、ルート証明書も同時に追加されます。</string>
+	<key>PayloadDisplayName</key>
+	<string>WAACS EAP-TLS設定</string>
+	<key>PayloadIdentifier</key>
+	<string>9FF14944-4867-4712-8938-0C4998EF894A</string>
+	<key>PayloadOrganization</key>
+	<string>大阪工業大学</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>335CFBE2-382C-4DF5-9AB9-4146C0221FBD</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

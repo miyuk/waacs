@@ -11,18 +11,27 @@ from OpenSSL import crypto
 import subprocess
 import os
 import os.path
+import base64
 import api
 from parameter import Parameter, TlsParameter, TtlsParameter, TYPE_TLS, TYPE_TTLS
 
 MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"
 MIMETYPE_WAACSCONFIG = "application/x-waacs-config"
 
-templete_file_path = "./template.mobileconfig"
+templete_ttls_file_path = "./template_ttls.mobileconfig"
+templete_tls_file_path = "./template_tls.mobileconfig"
 
 
 def make_mobileconfig_ttls(ssid, user_id, password):
-    config = open(templete_file_path).read()
+    config = open(templete_ttls_file_path).read()
     return config.replace("$ssid", ssid).replace("$userId", user_id).replace("$password", password)
+
+
+def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass):
+    config = open(templete_tls_file_path).read()
+    cert_format_content = base64.encodestring(cert_content)
+    return config.replace("$ssid", ssid).replace("$cert_name", cert_name,)\
+        .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)
 
 
 def make_waacsconfig_ttls(ssid, user_id, password):
@@ -105,23 +114,24 @@ class RequestWifiAuthApi(object):
         with open("./client.key", "w") as f:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
         with open(os.devnull) as devnull:
-            subprocess.call("make client.p12".split(), stdout=devnull, stderr=devnull)
+            subprocess.call("make client.p12".split(),
+                            stdout=devnull, stderr=devnull)
             os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
             crt = open("./waacs/{0}.p12".format(user_id)).read()
-            subprocess.call("make clean".split(), stdout=devnull, stderr=devnull)
+            subprocess.call("make clean".split(),
+                            stdout=devnull, stderr=devnull)
             passphrase = "waacs"  # TODO
         os.chdir(last_dir)
         if "iPhone" in req.user_agent:
             resp.content_type = MIMETYPE_MOBILECONFIG
-            config = make_mobileconfig_ttls(ssid, user_id, password)
+            # config = make_mobileconfig_ttls(ssid, user_id, password)
+            config = make_mobileconfig_tls(ssid, user_id, crt, passphrase)
             resp.body = config
         elif "Android" in req.user_agent:
             resp.content_type = MIMETYPE_WAACSCONFIG
-            config = make_waacsconfig_ttls(ssid, user_id, password)
+            #config = make_waacsconfig_ttls(ssid, user_id, password)
+            config = make_waacsconfig_tls(ssid, user_id, crt, passphrase)
             resp.body = config
         else:
-            c = make_waacsconfig_tls(ssid, user_id, crt, passphrase)
-            resp.body = c
-            return
             resp.status = falcon.HTTP_401
             resp.body = "This system is iPhone and Android only"
