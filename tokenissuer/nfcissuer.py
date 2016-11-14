@@ -16,7 +16,8 @@ class NfcIssuer(Thread):
 
     def __init__(self, server_address, server_port, issuer_id, issuer_password):
         super(NfcIssuer, self).__init__()
-        self.api_client = ApiClient(server_address, server_port, issuer_id, issuer_password)
+        self.api_client = ApiClient(
+            server_address, server_port, issuer_id, issuer_password)
         self.stop_event = Event()
 
     def run(self):
@@ -32,9 +33,11 @@ class NfcIssuer(Thread):
                     llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
                                       terminate=terminate_check)
                     if not llc:
-                        logger.warning("NFC connection timeout and continue...")
+                        logger.warning(
+                            "NFC connection timeout and continue...")
                         continue
-                    logger.debug("LLCP link is successfully established\n%s", llc)
+                    logger.debug(
+                        "LLCP link is successfully established\n%s", llc)
                     client = nfcclient.NfcClient(llc)
                     th = Thread(target=llc.run)
                     th.daemon = True

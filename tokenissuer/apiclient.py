@@ -22,10 +22,12 @@ class ApiClient(object):
 
     def issue_token(self):
         try:
-            url = "https://{0}:{1}/issue_token/".format(self.server_address, self.server_port)
+            url = "https://{0}:{1}/issue_token/".format(
+                self.server_address, self.server_port)
             r = requests.post(url, json.dumps(self.credential))
             if r.status_code != requests.codes.ok:
-                raise RequestException("API request error: {} ({})".format(url, r.status_code))
+                raise RequestException(
+                    "API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
             return (data["token"], data["issuance_time"])
         except:
