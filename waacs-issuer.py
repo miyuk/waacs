@@ -27,24 +27,25 @@ server_port = config.getint("ApiClient", "server_port")
 
 
 def main(argv):
-    nfc_issuer = NfcIssuer(server_address, server_port,
+    nfc_issuer = NfcIssuer(ssid, server_address, server_port,
                            issuer_id, issuer_password)
     nfc_issuer.start()
     qr_issuer = QrIssuer(ssid, server_address, server_port, issuer_id, issuer_password,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
-    th = Thread(target=subprocess.call, args="startx".split())
-    th.daemon = True
-    th.start()
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        logger.warning("exit by KeyboardInterrupt")
-        sys.exit(0)
-    finally:
-        nfc_issuer.stop()
-        qr_issuer.stop()
+    with open(os.devnull) as devnull:
+        th = Thread(target=subprocess.call, args=("startx".split(), stdout=devnull))
+        th.daemon = True
+        th.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            logger.warning("exit by KeyboardInterrupt")
+            sys.exit(0)
+        finally:
+            nfc_issuer.stop()
+            qr_issuer.stop()
 
 if __name__ == '__main__':
     main(sys.argv)

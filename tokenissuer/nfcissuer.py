@@ -14,10 +14,11 @@ import nfcclient
 
 class NfcIssuer(Thread):
 
-    def __init__(self, server_address, server_port, issuer_id, issuer_password):
+    def __init__(self, ssid, server_address, server_port, issuer_id, issuer_password):
         super(NfcIssuer, self).__init__()
         self.api_client = ApiClient(
             server_address, server_port, issuer_id, issuer_password)
+        self.ssid = ssid
         self.stop_event = Event()
 
     def run(self):
@@ -29,7 +30,7 @@ class NfcIssuer(Thread):
 
                     def terminate_check():
                         span = time() - started
-                        return span > 5 or self.stop_event.is_set()
+                        return span > 30 or self.stop_event.is_set()
                     llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
                                       terminate=terminate_check)
                     if not llc:
@@ -42,8 +43,8 @@ class NfcIssuer(Thread):
                     th = Thread(target=llc.run)
                     th.daemon = True
                     th.start()
-                    params = {"token": token, "issuance_time": issuance_time}
-                    client.send_waacs_message(params)
+                    url = self.api_client.requestwifi_url(self.ssid, token)
+                    client.send_waacs_message(url)
                     logger.debug("LLCP link is closing")
                     th.join()
                     logger.debug("LLCP link is closed")
