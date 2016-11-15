@@ -120,7 +120,7 @@ class RequestWifiAuthApi(object):
             subprocess.call("make clean".split(), stdout=devnull)
             passphrase = "waacs"  # TODO
         os.chdir(last_dir)
-        if "iPhone" in req.user_agent:
+        if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             resp.content_type = MIMETYPE_MOBILECONFIG
             # config = make_mobileconfig_ttls(ssid, user_id, password)
             config = make_mobileconfig_tls(ssid, user_id, crt, passphrase)
