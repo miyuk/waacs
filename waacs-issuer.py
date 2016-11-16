@@ -34,7 +34,7 @@ def main(argv):
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
     with open(os.devnull) as devnull:
-        th = Thread(target=subprocess.call, args=("startx".split(), devnull))
+        th = Thread(target=subprocess.call, args=("startx".split(),), kwargs={"stdout": devnull})
         th.daemon = True
         th.start()
         try:
