@@ -27,11 +27,13 @@ def make_mobileconfig_ttls(ssid, user_id, password):
     return config.replace("$ssid", ssid).replace("$userId", user_id).replace("$password", password)
 
 
-def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass):
+def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass, expiration_time):
     config = open(templete_tls_file_path).read()
     cert_format_content = base64.encodestring(cert_content)
+    remaining_seconds = (expiration_time - datetime.now()).seconds
     return config.replace("$ssid", ssid).replace("$cert_name", cert_name,)\
-        .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)
+        .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)\
+        .replace("$remaining_seconds", remaining_seconds)
 
 
 def make_waacsconfig_ttls(ssid, user_id, password):

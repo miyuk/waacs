@@ -5,10 +5,10 @@
 	<key>ConsentText</key>
 	<dict>
 		<key>default</key>
-		<string>利用後は「一般」→「プロファイル」よりプロファイルを削除してください</string>
+		<string>指定時間後に自動で削除されます。すぐ削除してい場合は「一般」→「プロファイル」よりプロファイルを削除してください。</string>
 	</dict>
 	<key>DurationUntilRemoval</key>
-	<integer>86400</integer>
+	<integer>$remaining_seconds</integer>
 	<key>PayloadContent</key>
 	<array>
 		<dict>
