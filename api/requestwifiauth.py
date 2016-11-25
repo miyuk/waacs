@@ -105,7 +105,7 @@ class RequestWifiAuthApi(object):
                                 for x in range(10)])
             now = datetime.now()
             cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
-                        (user_id, password, now.strftime("%Y-%m-%d %H:%M:%S")))
+                        (user_id, password, api.format_time(now)))
 
         csr, key = make_cert_req(
             crypto.TYPE_RSA, 2048, "JP", "Osaka", "Osaka Institute of Technology", user_id)

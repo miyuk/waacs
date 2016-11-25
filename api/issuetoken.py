@@ -37,12 +37,7 @@ class IssueTokenApi(object):
                 logger.warning("not found issuer id %s", issuer_id)
                 resp.status = falcon.HTTP_401
                 return
-            ref_issuer_password = cur.fetchone()[0]
-            if not ref_issuer_password:
-                logger.warning("not found issuer id: %s", issuer_id)
-                resp.status = falcon.HTTP_401
-                return
-            if not issuer_password == ref_issuer_password:
+            if not issuer_password == cur.fetchone()[0]
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             while True:
@@ -52,9 +47,8 @@ class IssueTokenApi(object):
                     "SELECT COUNT(*) FROM token WHERE token = %s", (token, ))
                 if cur.fetchone()[0] == 0:
                     break
-            now = datetime.now()
-            cur.execute("INSERT INTO token(token, token_issuance_time) VALUES(%s, %s)",
-                        (token, now.strftime("%Y-%m-%d %H:%M:%S")))
-        msg = {"token": token, "issuance_time": now.strftime(
-            "%Y-%m-%d %H:%M:%S")}
+            now_str = api.format_time(datetime.now())
+            cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id) VALUES(%s, %s, %s)",
+                        (token, now_str, issuer_id))
+        msg = {"token": token, "token_issuance_time": now_str}
         resp.body = json.dumps(msg)
