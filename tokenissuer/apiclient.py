@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 class ApiClient(object):
 
+    TYPE_NFC = "NFC"
+    TYPE_QR = "QR"
+
     @property
     def credential(self):
         return {"issuer_id": self.issuer_id, "issuer_password": self.issuer_password}
@@ -20,10 +23,13 @@ class ApiClient(object):
         self.issuer_id = issuer_id
         self.issuer_password = issuer_password
 
-    def issue_token(self):
+    def issue_token(self, access_type):
         try:
             url = "https://{0}:{1}/issue_token/".format(
                 self.server_address, self.server_port)
+            data = self.credential
+            data.update({"issuer_id": self.issuer_id,
+                         "access_type": access_type})
             r = requests.post(url, json.dumps(self.credential))
             if r.status_code != requests.codes.ok:
                 raise RequestException(

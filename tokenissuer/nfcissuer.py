@@ -8,7 +8,7 @@ from time import time
 import logging
 logger = logging.getLogger(__name__)
 import traceback
-from tokenissuer.apiclient import ApiClient
+from tokenissuer import ApiClient
 import nfcclient
 
 
@@ -25,7 +25,8 @@ class NfcIssuer(Thread):
         while not self.stop_event.is_set():
             try:
                 with ContactlessFrontend("usb") as clf:
-                    token, issuance_time = self.api_client.issue_token()
+                    token, issuance_time = self.api_client.issue_token(
+                        self.api_client.TYPE_NFC)
                     started = time()
 
                     def terminate_check():

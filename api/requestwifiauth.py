@@ -59,7 +59,22 @@ def make_waacsconfig_tls(ssid, cert_name, cert_content, cert_pass):
     return json.dumps(param.to_dict())
 
 
-def make_cert_req(type, bits, C, ST, O, CN):
+def make_credential(cur):
+    while True:
+        user_id = "".join([random.choice(api.SOURCE_CHAR)
+                           for x in range(32)])
+        cur.execute(
+            "SELECT COUNT(*) FROM user WHERE user_id = %s", (user_id, ))
+        if cur.fetchone()[0] == 0:
+            break
+    password = "".join([random.choice(api.SOURCE_CHAR)
+                        for x in range(10)])
+    cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
+                (user_id, password, api.format_time(now)))
+    return user_id, password
+
+
+def make_certificate(type, bits, C, ST, O, CN):
     key = crypto.PKey()
     key.generate_key(type, bits)
     req = crypto.X509Req()
@@ -70,7 +85,22 @@ def make_cert_req(type, bits, C, ST, O, CN):
     sbj.CN = CN
     req.set_pubkey(key)
     req.sign(key, "sha256")
-    return req, key
+    csr, key = make_cert_req(crypto.TYPE_RSA, 2048, "JP",
+                             "Osaka", "Osaka Institute of Technology", user_id)
+    last_dir = os.path.realpath(os.getcwd())
+    os.chdir(self.certs_dir)
+    with open("./client.csr", "w") as f:
+        f.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, csr))
+    with open("./client.key", "w") as f:
+        f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
+    with open(os.devnull) as devnull:
+        subprocess.call("make client.p12".split(), stdout=devnull)
+        os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
+        crt = open("./waacs/{0}.p12".format(user_id)).read()
+        subprocess.call("make clean".split(), stdout=devnull)
+        passphrase = "waacs"  # TODO
+    os.chdir(last_dir)
+    return crt
 
 
 class RequestWifiAuthApi(object):
@@ -87,41 +117,21 @@ class RequestWifiAuthApi(object):
         self.certs_dir = certs_dir
 
     def on_get(self, req, resp, ssid, token):
+        now = datetime.now()
         with db.connect(**self.db_conn_args) as cur:
-            cur.execute(
-                "SELECT COUNT(*) FROM token WHERE token = %s", (token, ))
-            if not cur.fetchone():
+            rownum = cur.execute(
+                "SELECT token_issuance_time　FROM token WHERE token = %s", (token, ))
+            if not rownum:
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
                 return
-            while True:
-                user_id = "".join([random.choice(api.SOURCE_CHAR)
-                                   for x in range(10)])
-                cur.execute(
-                    "SELECT COUNT(*) FROM user WHERE user_id = %s", (user_id, ))
-                if cur.fetchone()[0] == 0:
-                    break
-            password = "".join([random.choice(api.SOURCE_CHAR)
-                                for x in range(10)])
-            now = datetime.now()
-            cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
-                        (user_id, password, api.format_time(now)))
-
-        csr, key = make_cert_req(
-            crypto.TYPE_RSA, 2048, "JP", "Osaka", "Osaka Institute of Technology", user_id)
-        last_dir = os.path.realpath(os.getcwd())
-        os.chdir(self.certs_dir)
-        with open("./client.csr", "w") as f:
-            f.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, csr))
-        with open("./client.key", "w") as f:
-            f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, key))
-        with open(os.devnull) as devnull:
-            subprocess.call("make client.p12".split(), stdout=devnull)
-            os.rename("client.p12", "./waacs/{0}.p12".format(user_id))
-            crt = open("./waacs/{0}.p12".format(user_id)).read()
-            subprocess.call("make clean".split(), stdout=devnull)
-            passphrase = "waacs"  # TODO
-        os.chdir(last_dir)
+            token_issuance_time = cur.fetchone()[0]
+            # TODO
+            if now - token_issuance_time > timedelta(seconds=60):
+                logger.warning("expiration token: %s", token)
+                resp.status = falcon.HTTP_401
+                return
+            user_id, password = make_credential(cur)
         if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             resp.content_type = MIMETYPE_MOBILECONFIG
             # config = make_mobileconfig_ttls(ssid, user_id, password)

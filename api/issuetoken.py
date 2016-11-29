@@ -26,6 +26,7 @@ class IssueTokenApi(object):
             data = json.loads(req.stream.read())
             issuer_id = data["issuer_id"]
             issuer_password = data["issuer_password"]
+            access_type = data["access_type"]
             logger.debug("issuer auth(id: %s, password: %s)",
                          issuer_id, issuer_password)
         except Exception as e:
@@ -33,7 +34,7 @@ class IssueTokenApi(object):
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
                 "SELECT password FROM issuer WHERE issuer_id = %s", (issuer_id, ))
-            if rownum <= 0:
+            if not rownum:
                 logger.warning("not found issuer id %s", issuer_id)
                 resp.status = falcon.HTTP_401
                 return
@@ -48,7 +49,7 @@ class IssueTokenApi(object):
                 if cur.fetchone()[0] == 0:
                     break
             now_str = api.format_time(datetime.now())
-            cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id) VALUES(%s, %s, %s)",
-                        (token, now_str, issuer_id))
+            cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, access_type) VALUES(%s, %s, %s, %s)",
+                        (token, now_str, issuer_id, access_type))
         msg = {"token": token, "token_issuance_time": now_str}
         resp.body = json.dumps(msg)

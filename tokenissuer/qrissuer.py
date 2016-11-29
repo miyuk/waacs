@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 import qrcode
 import traceback
-from tokenissuer.apiclient import ApiClient
+from tokenissuer import ApiClient
 
 
 class QrIssuer(Thread):
@@ -27,7 +27,8 @@ class QrIssuer(Thread):
     def run(self):
         while not self.stop_event.is_set():
             try:
-                token, issuance_time = self.api_client.issue_token()
+                token, issuance_time = self.api_client.issue_token(
+                    self.api_client.TYPE_QR)
                 qr_img = qrcode.make(
                     self.api_client.requestwifi_url(self.ssid, token))
                 qr_img.save(self.qr_output_path)
