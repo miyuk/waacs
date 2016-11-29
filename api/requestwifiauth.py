@@ -139,8 +139,8 @@ class RequestWifiAuthApi(object):
             resp.body = config
         elif "Android" in req.user_agent:
             resp.content_type = MIMETYPE_WAACSCONFIG
-            # config = make_waacsconfig_ttls(ssid, user_id, password)
-            config = make_waacsconfig_tls(ssid, user_id, crt, passphrase)
+            config = make_waacsconfig_ttls(ssid, user_id, password)
+            # config = make_waacsconfig_tls(ssid, user_id, crt, passphrase)
             resp.body = config
         else:
             resp.status = falcon.HTTP_401
