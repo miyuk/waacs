@@ -45,7 +45,8 @@ def resolve(*lines):
         for op in OP_TRY:
             arr = line.rsplit(op)
             if len(arr) == 2:
-                tuples.append((str(arr[0].strip()), OP[op], str(arr[1].strip())))
+                tuples.append(
+                    (str(arr[0].strip()), OP[op], str(arr[1].strip())))
                 break
     return tuple(tuples)
 
