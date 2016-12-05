@@ -65,23 +65,28 @@ class RequestWifiAuthApi(object):
     def db_conn_args(self):
         return {"user": self.user, "passwd": self.passwd, "db": self.db, "host": self.host}
 
-    def __init__(self, db_conf, certs_dir):
-        self.host = db_conf["host"]
-        self.user = db_conf["user"]
-        self.passwd = db_conf["passwd"]
-        self.db = db_conf["db"]
-        self.certs_dir = certs_dir
+    def __init__(self, db_conf_dict, pki_conf_dict):
+        self.host = db_conf_dict["host"]
+        self.user = db_conf_dict["user"]
+        self.passwd = db_conf_dict["passwd"]
+        self.db = db_conf_dict["db"]
+        self.client_certs_dir = pki_conf_dict["client_certs_dir"]
         self.ca_crt = crypto.load_certificate(
-            crypto.FILETYPE_PEM, open(os.path.join(self.certs_dir, "ca.pem")).read())
+            crypto.FILETYPE_PEM, open(pki_conf_dict["ca_crt"]).read())
         self.ca_key = crypto.load_privatekey(
-            crypto.FILETYPE_PEM, open(os.path.join(
-                self.certs_dir, "ca.pem").read(), "waacs"))
-        self.C = "JP"
-        self.ST = "Osaka"
-        self.O = "Osaka Institute of Technology"
-        self.encryption_type = crypto.TYPE_RSA
-        self.key_size = 2048
-        self.expiration_time = 60 * 60
+            crypto.FILETYPE_PEM, open(pki_conf_dict["ca_key"]).read(), "waacs")
+        self.C = pki_conf_dict["C"]
+        self.ST = pki_conf_dict["ST"]
+        self.O = pki_conf_dict["O"]
+        et = pki_conf_dict["encryption_type"]
+        if et == "RSA":
+            self.encryption_type = crypto.TYPE_RSA
+        elif et == "DSA":
+            self.encryption_type = crypto.TYPE_DSA
+        else:
+            logger.warning("encryption type is not set")
+        self.key_size = pki_conf_dict["key_size"]
+        self.expiration_time = pki_conf_dict["expiration_time"]
 
     def on_get(self, req, resp, ssid, token):
         now = datetime.now()

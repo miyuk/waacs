@@ -12,26 +12,35 @@ from wsgiref.simple_server import make_server, WSGIRequestHandler
 from threading import Thread
 import falcon
 import time
-import api
+from api import RequestWifiAuthApi, IssueTokenApi
 logger = logging.getLogger(__name__)
 
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/server.cfg"))
-api_conf_dict = dict(config.sections("ApiServer"))
+api_conf_dict = dict(config.items("ApiServer"))
 listen_address = api_conf_dict["listen_address"]
 listen_port = api_conf_dict["ApiServer", "listen_port"]
-db_conf_dict = dict(config.sections("UserDB"))
+db_conf_dict = dict(config.items("UserDB"))
 db_host = db_conf_dict["host"]
 db_user = db_conf_dict["user"]
 db_passwd = db_conf_dict["password"]
 db_db = db_conf_dict["db"]
-certs_dir = config.get("Certs", "certs_dir")
+pki_conf_dict = dict(config.items("PKI"))
+ca_crt = pki_conf_dict["ca_crt"]
+ca_key = pki_conf_dict["ca_key"]
+client_crt_dir = pki_conf_dict["client_crt_dir"]
+common_name = pki_conf_dict["CN"]
+state = pki_conf_dict["ST"]
+organization = pki_conf_dict["O"]
+expiration_time = pki_conf_dict["expiration_time"]
+key_size = pki_conf_dict["key_size"]
+encryption_type = pki_conf_dict["encryption_type"]
 
 
 def main(argv):
-    requestwifi_api = api.RequestWifiAuthApi(db_conf_dict, certs_dir)
-    issuetoken_api = api.IssueTokenApi(db_conf_dict)
+    requestwifi_api = RequestWifiAuthApi(db_conf_dict, pki_conf_dict)
+    issuetoken_api = IssueTokenApi(db_conf_dict)
     app = falcon.API()
     app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)
     app.add_route("/issue_token/", issuetoken_api)
