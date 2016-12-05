@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger(__name__)
 import MySQLdb as db
 from datetime import datetime, timedelta
 import json
@@ -14,6 +13,7 @@ import os.path
 import base64
 import api
 from parameter import Parameter, TlsParameter, TtlsParameter, TYPE_TLS, TYPE_TTLS
+logger = logging.getLogger(__name__)
 
 MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"
 MIMETYPE_WAACSCONFIG = "application/x-waacs-config"
@@ -95,7 +95,8 @@ class RequestWifiAuthApi(object):
             return
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
-                "SELECT access_issuer_id, token_issuance_time　FROM token WHERE token = %s", (token, ))
+                "SELECT access_issuer_id, token_issuance_time　FROM token \
+                 WHERE token = %s", (token, ))
             if not rownum:
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
@@ -109,7 +110,8 @@ class RequestWifiAuthApi(object):
             cur.execute("DELETE FROM token WHERE token = %s", (token, ))
             user_id, password = self.gen_credential(cur)
             eap_type = "EAP-TLS" if device_type == "iOS" else "EAP_TTLS"
-            cur.execute("INSERT INTO user(user_id, password, issuance_time, access_issuer_id, eap_type) VALUES(%s, %s, %s, %s, %s)",
+            cur.execute("INSERT INTO user(user_id, password, issuance_time, \
+                         access_issuer_id, eap_type) VALUES(%s, %s, %s, %s, %s)",
                         (user_id, password, api.format_time(now), access_issuer_id, device_type))
             cur.execute("SELECT LAST_INSERT_ID() FROM user")
             serial = cur.fetchone()[0]
@@ -123,7 +125,7 @@ class RequestWifiAuthApi(object):
                 resp.content_type = MIMETYPE_MOBILECONFIG
                 config = make_mobileconfig_tls(ssid, user_id, crt, "waacs")
                 resp.body = config
-            elif device_type == "Android"
+            elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
                 config = make_waacsconfig_ttls(ssid, user_id, password)
                 resp.body = config

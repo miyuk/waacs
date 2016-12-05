@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger(__name__)
 import MySQLdb as db
 from datetime import datetime, timedelta
 import json
 import random
 import api
+logger = logging.getLogger(__name__)
 
 
 class IssueTokenApi(object):
@@ -38,7 +38,7 @@ class IssueTokenApi(object):
                 logger.warning("not found issuer id %s", issuer_id)
                 resp.status = falcon.HTTP_401
                 return
-            if not issuer_password == cur.fetchone()[0]
+            if not issuer_password == cur.fetchone()[0]:
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             while True:
@@ -49,7 +49,8 @@ class IssueTokenApi(object):
                 if cur.fetchone()[0] == 0:
                     break
             now_str = api.format_time(datetime.now())
-            cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, access_type) VALUES(%s, %s, %s, %s)",
+            cur.execute("INSERT INTO token(token, token_issuance_time, \
+                         access_issuer_id, access_type) VALUES(%s, %s, %s, %s)",
                         (token, now_str, issuer_id, access_type))
         msg = {"token": token, "token_issuance_time": now_str}
         resp.body = json.dumps(msg)

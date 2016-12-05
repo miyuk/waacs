@@ -7,14 +7,15 @@ from ConfigParser import SafeConfigParser
 import json
 import logging
 from logging.config import fileConfig
-fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
-logger = logging.getLogger(__name__)
+
 from wsgiref.simple_server import make_server, WSGIRequestHandler
 from threading import Thread
 import falcon
 import time
 import api
+logger = logging.getLogger(__name__)
 
+fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/server.cfg"))
 listen_address = config.get("ApiServer", "listen_address")

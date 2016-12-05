@@ -7,14 +7,15 @@ from ConfigParser import SafeConfigParser
 import json
 import logging
 from logging.config import fileConfig
-fileConfig(os.path.join(sys.path[0], "config/issuer_log.cfg"))
-logger = logging.getLogger(__name__)
 import qrcode
 import requests
 from tokenissuer import NfcIssuer, QrIssuer
 from threading import Thread
 import subprocess
 import time
+logger = logging.getLogger(__name__)
+
+fileConfig(os.path.join(sys.path[0], "config/issuer_log.cfg"))
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 qr_output_path = config.get("QrIssuer", "qr_output_path")
@@ -34,7 +35,8 @@ def main(argv):
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
     with open(os.devnull) as devnull:
-        th = Thread(target=subprocess.call, args=("startx".split(),), kwargs={"stdout": devnull})
+        th = Thread(target=subprocess.call, args=(
+            "startx".split(),), kwargs={"stdout": devnull})
         th.daemon = True
         th.start()
         try:

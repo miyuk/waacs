@@ -6,10 +6,10 @@ import time
 from nfc import ContactlessFrontend
 from nfc.ndef import Record, UriRecord, Message
 import logging
-logger = logging.getLogger(__name__)
 import qrcode
 import traceback
 from tokenissuer import ApiClient
+logger = logging.getLogger(__name__)
 
 
 class QrIssuer(Thread):

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger(__name__)
 import json
 from nfc.snep import SnepClient
 from nfc.ndef import Record, Message, UriRecord
+logger = logging.getLogger(__name__)
 
 WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
 ANDROID_APPKLICATION_RECORD_TYPE = "urn:nfc:ext:android.com:pkg"

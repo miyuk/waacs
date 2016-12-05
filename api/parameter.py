@@ -3,9 +3,9 @@
 import json
 import datetime
 import logging
-logger = logging.getLogger(__name__)
 import base64
 import api
+logger = logging.getLogger(__name__)
 
 TYPE_TLS = "EAP-TLS"
 TYPE_TTLS = "EAP-TTLS"

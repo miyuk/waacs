@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import logging
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
-logger.setLevel(logging.INFO)
 from api.issuetoken import IssueTokenApi
 from api.requestwifiauth import RequestWifiAuthApi
 from api.parameter import Parameter, TlsParameter, TtlsParameter
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
+logger.setLevel(logging.INFO)
+
+
 HOST = "localhost"
 USER = "waacs"
 PASSWD = "waacs"

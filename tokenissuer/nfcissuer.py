@@ -6,10 +6,10 @@ from nfc import ContactlessFrontend
 from nfc.ndef import Record, UriRecord, Message
 from time import time
 import logging
-logger = logging.getLogger(__name__)
 import traceback
 from tokenissuer import ApiClient
 import nfcclient
+logger = logging.getLogger(__name__)
 
 
 class NfcIssuer(Thread):
