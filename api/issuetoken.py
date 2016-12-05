@@ -45,8 +45,8 @@ class IssueTokenApi(object):
                 token = "".join([random.choice(api.SOURCE_CHAR)
                                  for x in range(32)])
                 cur.execute(
-                    "SELECT COUNT(*) FROM token WHERE token = %s", (token, ))
-                if cur.fetchone()[0] == 0:
+                    "SELECT TRUE FROM token WHERE token = %s", (token, ))
+                if cur.fetchone():
                     break
             now_str = api.format_time(datetime.now())
             cur.execute("INSERT INTO token(token, token_issuance_time, \
