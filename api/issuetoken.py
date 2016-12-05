@@ -15,11 +15,11 @@ class IssueTokenApi(object):
     def db_conn_args(self):
         return {"user": self.user, "passwd": self.passwd, "db": self.db, "host": self.host}
 
-    def __init__(self, host, user, passwd, db):
-        self.host = host
-        self.user = user
-        self.passwd = passwd
-        self.db = db
+    def __init__(self, db_conf):
+        self.host = db_conf["host"]
+        self.user = db_conf["user"]
+        self.passwd = db_conf["passwd"]
+        self.db = db_conf["db"]
 
     def on_post(self, req, resp):
         try:

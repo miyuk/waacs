@@ -14,10 +14,9 @@ logger = logging.getLogger(__name__)
 
 class NfcIssuer(Thread):
 
-    def __init__(self, ssid, server_address, server_port, issuer_id, issuer_password):
+    def __init__(self, ssid, api_conf_dict):
         super(NfcIssuer, self).__init__()
-        self.api_client = ApiClient(
-            server_address, server_port, issuer_id, issuer_password)
+        self.api_client = ApiClient(api_conf_dict)
         self.ssid = ssid
         self.stop_event = Event()
 

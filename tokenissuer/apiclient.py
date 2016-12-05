@@ -17,11 +17,11 @@ class ApiClient(object):
     def credential(self):
         return {"issuer_id": self.issuer_id, "issuer_password": self.issuer_password}
 
-    def __init__(self, server_address, server_port, issuer_id, issuer_password):
-        self.server_address = server_address
-        self.server_port = server_port
-        self.issuer_id = issuer_id
-        self.issuer_password = issuer_password
+    def __init__(self, api_conf_dict):
+        self.server_address = api_conf_dict["server_address"]
+        self.server_port = api_conf_dict["server_port"]
+        self.issuer_id = api_conf_dict["issuer_id"]
+        self.issuer_password = api_conf_dict["issuer_password"]
 
     def issue_token(self, access_type):
         try:

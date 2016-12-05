@@ -3,7 +3,7 @@
 
 import sys
 import os
-from ConfigParser import SafeConfigParser
+from _conf_dict igParser import SafeConfigParser
 import json
 import logging
 from logging.config import fileConfig
@@ -15,23 +15,26 @@ import subprocess
 import time
 logger = logging.getLogger(__name__)
 
+
 fileConfig(os.path.join(sys.path[0], "config/issuer_log.cfg"))
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
-qr_output_path = config.get("QrIssuer", "qr_output_path")
-qr_update_interval = config.getint("QrIssuer", "qr_update_interval")
-ssid = config.get("WifiInfo", "ssid")
-issuer_id = config.get("ApiClient", "issuer_id")
-issuer_password = config.get("ApiClient", "issuer_password")
-server_address = config.get("ApiClient", "server_address")
-server_port = config.getint("ApiClient", "server_port")
+qr_conf_dict = dict(config.items("QrIssuer"))
+qr_output_path = qr_conf_dict["qr_output_path"]
+qr_update_interval = qr_conf_dict["qr_update_interval"]
+wifi_conf_dict = dict(config.items("WifiInfo"))
+ssid = wifi_conf_dict["ssid"]
+api_conf_dict = dict(config.items("ApiClient"))
+issuer_id = api_conf_dict["issuer_id"]
+issuer_password = api_conf_dict["issuer_password"]
+server_address = capi_conf_dict["server_address"]
+server_port = api_conf_dict["server_port"]
 
 
 def main(argv):
-    nfc_issuer = NfcIssuer(ssid, server_address, server_port,
-                           issuer_id, issuer_password)
+    nfc_issuer = NfcIssuer(ssid, api_conf_dict)
     nfc_issuer.start()
-    qr_issuer = QrIssuer(ssid, server_address, server_port, issuer_id, issuer_password,
+    qr_issuer = QrIssuer(ssid, api_conf_dict,
                          qr_output_path, qr_update_interval)
     qr_issuer.start()
     with open(os.devnull) as devnull:

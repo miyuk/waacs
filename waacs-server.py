@@ -18,21 +18,20 @@ logger = logging.getLogger(__name__)
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))
 config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/server.cfg"))
-listen_address = config.get("ApiServer", "listen_address")
-listen_port = config.getint("ApiServer", "listen_port")
-
-db_host = config.get("UserDB", "host")
-db_user = config.get("UserDB", "user")
-db_passwd = config.get("UserDB", "password")
-db_db = config.get("UserDB", "db")
-
+api_conf_dict = dict(config.sections("ApiServer"))
+listen_address = api_conf_dict["listen_address"]
+listen_port = api_conf_dict["ApiServer", "listen_port"]
+db_conf_dict = dict(config.sections("UserDB"))
+db_host = db_conf_dict["host"]
+db_user = db_conf_dict["user"]
+db_passwd = db_conf_dict["password"]
+db_db = db_conf_dict["db"]
 certs_dir = config.get("Certs", "certs_dir")
 
 
 def main(argv):
-    requestwifi_api = api.RequestWifiAuthApi(
-        db_host, db_user, db_passwd, db_db, certs_dir)
-    issuetoken_api = api.IssueTokenApi(db_host, db_user, db_passwd, db_db)
+    requestwifi_api = api.RequestWifiAuthApi(db_conf_dict, certs_dir)
+    issuetoken_api = api.IssueTokenApi(db_conf_dict)
     app = falcon.API()
     app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)
     app.add_route("/issue_token/", issuetoken_api)

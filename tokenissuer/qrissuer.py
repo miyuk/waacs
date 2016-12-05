@@ -14,12 +14,10 @@ logger = logging.getLogger(__name__)
 
 class QrIssuer(Thread):
 
-    def __init__(self, ssid, server_address, server_port, issuer_id, issuer_password,
-                 qr_output_path, update_inteval=30):
+    def __init__(self, ssid, api_conf_dict, qr_output_path, update_inteval=30):
         super(QrIssuer, self).__init__()
         self.ssid = ssid
-        self.api_client = ApiClient(
-            server_address, server_port, issuer_id, issuer_password)
+        self.api_client = ApiClient(api_conf_dict)
         self.qr_output_path = qr_output_path
         self.update_inteval = update_inteval
         self.stop_event = Event()

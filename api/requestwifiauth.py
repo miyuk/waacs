@@ -65,11 +65,11 @@ class RequestWifiAuthApi(object):
     def db_conn_args(self):
         return {"user": self.user, "passwd": self.passwd, "db": self.db, "host": self.host}
 
-    def __init__(self, host, user, passwd, db, certs_dir):
-        self.host = host
-        self.user = user
-        self.passwd = passwd
-        self.db = db
+    def __init__(self, db_conf, certs_dir):
+        self.host = db_conf["host"]
+        self.user = db_conf["user"]
+        self.passwd = db_conf["passwd"]
+        self.db = db_conf["db"]
         self.certs_dir = certs_dir
         self.ca_crt = crypto.load_certificate(
             crypto.FILETYPE_PEM, open(os.path.join(self.certs_dir, "ca.pem")).read())
