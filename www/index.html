@@ -4,6 +4,8 @@
 <head>
     <title>WAACS QR Code</title>
     <meta charset="utf-8">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qrcode.js"></script>
     <style type="text/css">
         * {
             box-sizing: border-box;
@@ -56,35 +58,26 @@
         }
     </style>
     <script type="text/javascript">
-        const QR_IMAGE_URL = "./waacs_qr.png";
-        const GET_QR_UPDATE_TIME_URL = "./get_qr_update_time.php";
+        const GET_LATEST_TOKEN_URL = "./get_latest_token.php";
         var qrImg;
         var qrArea;
         var clockArea;
         var qrUpdateTimeArea;
+        var qrCode;
+        var lastToken;
         window.onload = function() {
             qrImg = document.getElementById("qr_img");
             qrArea = document.getElementById("qr_area");
+            qr = new QRCode(qrImg);
             clockArea = document.getElementById("clock_area");
             qrUpdateTimeArea = document.getElementById("qr_update_time_area");
             setQrcode();
             setClock();
-            setQrUpdateTime();
             setInterval(setQrcode, 1000);
             setInterval(setClock, 1000);
-            setInterval(setQrUpdateTime, 1000);
         }
 
         function setQrcode() {
-            qrImg.src = QR_IMAGE_URL;
-        }
-
-        function setClock() {
-            var now = new Date();
-            clockArea.innerHTML = formatDate(now);
-        }
-
-        function setQrUpdateTime() {
             var req;
             if (window.XMLHttpRequest) {
                 req = new XMLHttpRequest();
@@ -94,23 +87,29 @@
                 qrUpdateTimeArea.innerHTML = "AJAXが使えません"
                 return;
             }
-            req.open("GET", GET_QR_UPDATE_TIME_URL, true);
+            req.open("GET", GET_LATEST_TOKEN_URL, true);
             req.onreadystatechange = function() {
                 if (req.readyState == 4) {
                     if (req.status == 200) {
-                        var epochMills = parseInt(req.responseText) * 1000;
-                        if (isNaN(epochMills)) {
-                            qrUpdateTimeArea.innerHTML = "ファイル情報取得失敗";
-                            return;
+                        var resp = Json.parse(req.responseText);
+                        var token = resp["token"];
+                        if (lastToken != null || token != lastToken) {
+                            qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
+                            var issuance_time = new Date(resp["issuance_time"]);
+                            qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
+                            lastToken = token;
                         }
-                        var date = new Date(epochMills);
-                        qrUpdateTimeArea.innerHTML = formatDate(date);
-                    } else {
-                        qrUpdateTimeArea.innerHTML = "ファイル情報取得失敗";
                     }
+                } else {
+                    qrUpdateTimeArea.innerHTML = "ファイル情報取得失敗";
                 }
-            };
-            req.send(null);
+            }
+        };
+        }
+
+        function setClock() {
+            var now = new Date();
+            clockArea.innerHTML = formatDate(now);
         }
 
         function formatDate(date) {

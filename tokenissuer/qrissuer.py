@@ -8,6 +8,7 @@ from nfc.ndef import Record, UriRecord, Message
 import logging
 import qrcode
 import traceback
+import sqlite3
 from tokenissuer import ApiClient
 logger = logging.getLogger(__name__)
 
@@ -27,9 +28,12 @@ class QrIssuer(Thread):
             try:
                 token, issuance_time = self.api_client.issue_token(
                     self.api_client.TYPE_QR)
-                qr_img = qrcode.make(
-                    self.api_client.requestwifi_url(self.ssid, token))
-                qr_img.save(self.qr_output_path)
+                with sqlite3.connect(self.qr_output_path) as cur:
+                    cur.execute("INSERT INTO token(token, issuance_time) \
+                        VALUES(%s, %s)", (token, issuance_time))
+                # qr_img = qrcode.make(
+                #     self.api_client.requestwifi_url(self.ssid, token))
+                # qr_img.save(self.qr_output_path)
             except:
                 logger.error("error: %s", traceback.format_exc())
             finally:

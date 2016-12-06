@@ -8,8 +8,8 @@
 /python/config.py
 
 #www
-www/waacs_qr.png
-
+/www/waacs_qr.png
+/www/data/token.sqlite3
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
