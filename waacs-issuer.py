@@ -3,7 +3,7 @@
 
 import sys
 import os
-from _conf_dict igParser import SafeConfigParser
+from ConfigParser import SafeConfigParser
 import json
 import logging
 from logging.config import fileConfig
