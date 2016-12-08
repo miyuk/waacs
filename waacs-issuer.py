@@ -27,7 +27,7 @@ ssid = wifi_conf_dict["ssid"]
 api_conf_dict = dict(config.items("ApiClient"))
 issuer_id = api_conf_dict["issuer_id"]
 issuer_password = api_conf_dict["issuer_password"]
-server_address = capi_conf_dict["server_address"]
+server_address = api_conf_dict["server_address"]
 server_port = api_conf_dict["server_port"]
 
 
@@ -51,6 +51,7 @@ def main(argv):
         finally:
             nfc_issuer.stop()
             qr_issuer.stop()
+
 
 if __name__ == '__main__':
     main(sys.argv)

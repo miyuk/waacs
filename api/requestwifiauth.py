@@ -137,6 +137,7 @@ class RequestWifiAuthApi(object):
 
     def gen_credential(self, cur):
         while True:
+            now = datetime.now()
             user_id = "".join([random.choice(api.SOURCE_CHAR)
                                for x in range(32)])
             cur.execute(
@@ -149,7 +150,7 @@ class RequestWifiAuthApi(object):
                     (user_id, password, api.format_time(now)))
         return user_id, password
 
-    def gen_certificate(self, cur, sefial, user_id, passphrase):
+    def gen_certificate(self, cur, serial, user_id, passphrase):
         key = crypto.PKey()
         key.generate_key(self.encryption_type, self.key_size)
         crt = crypto.X509()
@@ -161,9 +162,9 @@ class RequestWifiAuthApi(object):
         crt.gmtime_adj_notBefore(0)
         crt.gmtime_adj_notAfter(self.expiration_time)
         crt.set_serial_number(serial)
-        crt.set_issuer(ca_crt.get_subject())
+        crt.set_issuer(self.ca_crt.get_subject())
         crt.set_pubkey(key)
-        crt.sign(ca_key, "sha256")
+        crt.sign(self.ca_key, "sha256")
         p12 = crypto.PKCS12()
         p12.set_privatekey(key)
         p12.set_certificate(crt)

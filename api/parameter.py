@@ -74,15 +74,15 @@ class TlsParameter:
             self.client_certificate_content)
         dct[self.PASSPHRASE] = self.passphrase
         return dct
-
-    @classmethod
-    def parse(cls):
-        tls = TlsParameter()
-        self.client_certificate_name = dct[cls.CLIENT_CERTIFICATE_NAME]
-        self.client_certificate_content = base64.standard_b64decode(
-            dct[cls.CLIENT_CERTIFICATE_CONTENT])
-        self.passphrase = dct[cls.PASSPHRASE]
-        return parameter
+# TODO
+    # @classmethod
+    # def parse(cls):
+    #     tls = TlsParameter()
+    #     self.client_certificate_name = dct[cls.CLIENT_CERTIFICATE_NAME]
+    #     self.client_certificate_content = base64.standard_b64decode(
+    #         dct[cls.CLIENT_CERTIFICATE_CONTENT])
+    #     self.passphrase = dct[cls.PASSPHRASE]
+    #     return parameter
 
 
 class TtlsParameter:
