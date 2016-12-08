@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import sys
-import requests
-from requests import RequestException
 import json
 import logging
+import sys
+
+import requests
+from requests import RequestException
+
 logger = logging.getLogger(__name__)
 
 

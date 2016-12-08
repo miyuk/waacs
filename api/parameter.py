@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import json
-import datetime
-import logging
 import base64
+import datetime
+import json
+import logging
+
 import api
+
 logger = logging.getLogger(__name__)
 
 TYPE_TLS = "EAP-TLS"

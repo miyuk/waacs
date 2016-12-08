@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import sys
-from threading import Thread, Event
-import time
-from nfc import ContactlessFrontend
-from nfc.ndef import Record, UriRecord, Message
 import logging
-import qrcode
-import traceback
 import sqlite3
+import sys
+import time
+import traceback
+from threading import Event, Thread
+
+import qrcode
+from nfc import ContactlessFrontend
+from nfc.ndef import Message, Record, UriRecord
+
 from tokenissuer import ApiClient
+
 logger = logging.getLogger(__name__)
 
 

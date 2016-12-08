@@ -1,18 +1,21 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-from ConfigParser import SafeConfigParser
 import json
 import logging
+import os
+import subprocess
+import sys
+import time
+from ConfigParser import SafeConfigParser
 from logging.config import fileConfig
+from threading import Thread
+
 import qrcode
 import requests
+
 from tokenissuer import NfcIssuer, QrIssuer
-from threading import Thread
-import subprocess
-import time
+
 logger = logging.getLogger(__name__)
 
 

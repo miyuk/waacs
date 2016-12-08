@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import MySQLdb as db
-from datetime import datetime, timedelta
 import json
+import logging
 import random
-import api
+from datetime import datetime, timedelta
+
 import falcon
+import MySQLdb as db
+
+import api
+
 logger = logging.getLogger(__name__)
 
 

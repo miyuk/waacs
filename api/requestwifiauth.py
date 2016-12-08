@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import MySQLdb as db
-from datetime import datetime, timedelta
+import base64
 import json
-import random
-import falcon
-from OpenSSL import crypto
-import subprocess
+import logging
 import os
 import os.path
-import base64
+import random
+import subprocess
+from datetime import datetime, timedelta
+
+import falcon
+import MySQLdb as db
+from OpenSSL import crypto
+
 import api
-from parameter import Parameter, TlsParameter, TtlsParameter, TYPE_TLS, TYPE_TTLS
+from parameter import (TYPE_TLS, TYPE_TTLS, Parameter, TlsParameter,
+                       TtlsParameter)
+
 logger = logging.getLogger(__name__)
 
 MIMETYPE_MOBILECONFIG = "application/x-apple-aspen-config"

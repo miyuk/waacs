@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import os
-from ConfigParser import SafeConfigParser
 import json
 import logging
-from logging.config import fileConfig
-
-from wsgiref.simple_server import make_server, WSGIRequestHandler
-from threading import Thread
-import falcon
+import os
+import sys
 import time
-from api import RequestWifiAuthApi, IssueTokenApi
+from ConfigParser import SafeConfigParser
+from logging.config import fileConfig
+from threading import Thread
+
+import falcon
+
+from api import IssueTokenApi, RequestWifiAuthApi
+from wsgiref.simple_server import WSGIRequestHandler, make_server
+
 logger = logging.getLogger(__name__)
 
 fileConfig(os.path.join(sys.path[0], "config/server_log.cfg"))

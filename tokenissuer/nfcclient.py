@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import logging
 import json
+import logging
+
+from nfc.ndef import Message, Record, UriRecord
 from nfc.snep import SnepClient
-from nfc.ndef import Record, Message, UriRecord
+
 logger = logging.getLogger(__name__)
 
 WAACS_MESSAGE_RECORD_TYPE = "urn:nfc:ext:waacs:msg"
