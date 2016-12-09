@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import json
 import logging
 import sys
@@ -38,7 +39,7 @@ class ApiClient(object):
                 raise RequestException(
                     "API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
-            return (data["token"], data["issuance_time"])
+            return (data["token"], datetime.now())
         except Exception as e:
             logger.error(e.message)
             raise sys.exc_info()
