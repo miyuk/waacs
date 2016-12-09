@@ -39,7 +39,9 @@ class ApiClient(object):
                 raise RequestException(
                     "API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
-            return (data["token"], datetime.now())
+            token = data["token"]
+            token_issuance_time = data["token_issuance_time"]
+            return (token, token_issuance_time)
         except Exception as e:
             logger.error(e.message)
             raise sys.exc_info()
