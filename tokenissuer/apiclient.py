@@ -33,7 +33,7 @@ class ApiClient(object):
             data.update({"issuer_id": self.issuer_id,
                          "access_type": access_type})
             logger.debug("send issue_token request to %s", url)
-            r = requests.post(url, json.dumps(self.credential))
+            r = requests.post(url, json.dumps(data))
             if r.status_code != requests.codes.ok:
                 raise RequestException(
                     "API request error: {} ({})".format(url, r.status_code))

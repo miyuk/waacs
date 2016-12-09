@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import json
 import logging
 import random
@@ -35,6 +34,7 @@ class IssueTokenApi(object):
                          issuer_id, issuer_password)
         except Exception as e:
             resp.status = falcon.HTTP_401
+            return
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
                 "SELECT password FROM issuer WHERE issuer_id = %s", (issuer_id, ))
