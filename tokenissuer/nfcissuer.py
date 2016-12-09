@@ -28,7 +28,7 @@ class NfcIssuer(Thread):
             try:
                 with ContactlessFrontend("usb") as clf:
                     token, issuance_time = self.api_client.issue_token(
-                        self.api_client.TYPE_NFC)
+                        ApiClient.TYPE_NFC)
                     started = time()
 
                     def terminate_check():

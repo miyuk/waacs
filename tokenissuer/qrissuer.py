@@ -30,7 +30,7 @@ class QrIssuer(Thread):
         while not self.stop_event.is_set():
             try:
                 token, issuance_time = self.api_client.issue_token(
-                    self.api_client.TYPE_QR)
+                    ApiClient.TYPE_QR)
                 with sqlite3.connect(self.qr_output_path) as cur:
                     cur.execute("INSERT INTO token(token, issuance_time) \
                         VALUES(%s, %s)", (token, issuance_time))

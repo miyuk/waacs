@@ -32,13 +32,15 @@ class ApiClient(object):
             data = self.credential
             data.update({"issuer_id": self.issuer_id,
                          "access_type": access_type})
+            logger.debug("send issue_token request to %s", url)
             r = requests.post(url, json.dumps(self.credential))
             if r.status_code != requests.codes.ok:
                 raise RequestException(
                     "API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
             return (data["token"], data["issuance_time"])
-        except:
+        except Exception as e:
+            logger.error(e.message)
             raise sys.exc_info()
 
     def requestwifi_url(self, ssid, token):
