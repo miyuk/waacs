@@ -33,7 +33,7 @@ class QrIssuer(Thread):
                     ApiClient.TYPE_QR)
                 with sqlite3.connect(self.qr_output_path) as cur:
                     cur.execute("INSERT INTO token(token, issuance_time) \
-                        VALUES(%s, %s)", (token, issuance_time))
+                        VALUES(?, ?)", (token, issuance_time))
                 # qr_img = qrcode.make(
                 #     self.api_client.requestwifi_url(self.ssid, token))
                 # qr_img.save(self.qr_output_path)
