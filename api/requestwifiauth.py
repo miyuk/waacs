@@ -79,9 +79,9 @@ class RequestWifiAuthApi(object):
             crypto.FILETYPE_PEM, open(pki_conf_dict["ca_crt"]).read())
         self.ca_key = crypto.load_privatekey(
             crypto.FILETYPE_PEM, open(pki_conf_dict["ca_key"]).read(), "waacs")
-        self.C = pki_conf_dict["C"]
-        self.ST = pki_conf_dict["ST"]
-        self.O = pki_conf_dict["O"]
+        self.C = pki_conf_dict["country"]
+        self.ST = pki_conf_dict["state"]
+        self.O = pki_conf_dict["organization"]
         et = pki_conf_dict["encryption_type"]
         if et == "RSA":
             self.encryption_type = crypto.TYPE_RSA
@@ -89,8 +89,8 @@ class RequestWifiAuthApi(object):
             self.encryption_type = crypto.TYPE_DSA
         else:
             logger.warning("encryption type is not set")
-        self.key_size = pki_conf_dict["key_size"]
-        self.expiration_time = pki_conf_dict["expiration_time"]
+        self.key_size = int(pki_conf_dict["key_size"])
+        self.expiration_time = int(pki_conf_dict["expiration_time"])
 
     def on_get(self, req, resp, ssid, token):
         now = datetime.now()

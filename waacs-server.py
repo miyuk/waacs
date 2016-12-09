@@ -22,21 +22,21 @@ config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/server.cfg"))
 api_conf_dict = dict(config.items("ApiServer"))
 listen_address = api_conf_dict["listen_address"]
-listen_port = api_conf_dict["ApiServer", "listen_port"]
+listen_port = int(api_conf_dict["listen_port"])
 db_conf_dict = dict(config.items("UserDB"))
 db_host = db_conf_dict["host"]
 db_user = db_conf_dict["user"]
-db_passwd = db_conf_dict["password"]
+db_passwd = db_conf_dict["passwd"]
 db_db = db_conf_dict["db"]
 pki_conf_dict = dict(config.items("PKI"))
 ca_crt = pki_conf_dict["ca_crt"]
 ca_key = pki_conf_dict["ca_key"]
-client_crt_dir = pki_conf_dict["client_crt_dir"]
-common_name = pki_conf_dict["CN"]
-state = pki_conf_dict["ST"]
-organization = pki_conf_dict["O"]
-expiration_time = pki_conf_dict["expiration_time"]
-key_size = pki_conf_dict["key_size"]
+client_certs_dir = pki_conf_dict["client_certs_dir"]
+country = pki_conf_dict["country"];
+state = pki_conf_dict["state"]
+organization = pki_conf_dict["organization"]
+expiration_time = int(pki_conf_dict["expiration_time"])
+key_size = int(pki_conf_dict["key_size"])
 encryption_type = pki_conf_dict["encryption_type"]
 
 

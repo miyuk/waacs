@@ -24,14 +24,14 @@ config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 qr_conf_dict = dict(config.items("QrIssuer"))
 qr_output_path = qr_conf_dict["qr_output_path"]
-qr_update_interval = qr_conf_dict["qr_update_interval"]
+qr_update_interval = int(qr_conf_dict["qr_update_interval"])
 wifi_conf_dict = dict(config.items("WifiInfo"))
 ssid = wifi_conf_dict["ssid"]
 api_conf_dict = dict(config.items("ApiClient"))
 issuer_id = api_conf_dict["issuer_id"]
 issuer_password = api_conf_dict["issuer_password"]
 server_address = api_conf_dict["server_address"]
-server_port = api_conf_dict["server_port"]
+server_port = int(api_conf_dict["server_port"])
 
 
 def main(argv):
