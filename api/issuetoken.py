@@ -50,7 +50,7 @@ class IssueTokenApi(object):
                                  for x in range(32)])
                 cur.execute(
                     "SELECT TRUE FROM token WHERE token = %s", (token, ))
-                if cur.fetchone():
+                if not cur.fetchone():
                     break
             now_str = api.format_time(datetime.now())
             cur.execute("INSERT INTO token(token, token_issuance_time, \
