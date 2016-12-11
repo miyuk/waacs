@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Asia/Tokyo');
 define('TOKEN_DB', './data/token.sqlite3');
 $pdo = new PDO('sqlite:'.TOKEN_DB);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

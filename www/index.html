@@ -98,7 +98,7 @@
                         var token = resp["token"];
                         if (lastToken == null || token != lastToken) {
                             qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
-                            var issuance_time = new Date(resp["issuance_time"]);
+                            var issuance_time = new Date(resp["issuance_time"].replace(/-/g, "/"));
                             qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
                             lastToken = token;
                         }
