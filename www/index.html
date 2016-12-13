@@ -97,13 +97,14 @@
                         var resp = JSON.parse(req.responseText);
                         var token = resp["token"];
                         if (lastToken == null || token != lastToken) {
-                            qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
                             var issuance_time = new Date(resp["issuance_time"].replace(/-/g, "/"));
+                            if (new Date() - issuance_time < 5 * 1000) {
+                                qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
+                            }
                             qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
                             lastToken = token;
                         }
-                    }
-                    else {
+                    } else {
                         qrUpdateTimeArea.innerHTML = "ファイル情報取得失敗";
                     }
                 }
