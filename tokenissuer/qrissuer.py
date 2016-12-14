@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sqlite3
-import time
+from time import sleep
 import traceback
 from threading import Event, Thread
 
@@ -28,18 +28,21 @@ class QrIssuer(Thread):
         GPIO.setup(self.sensor_port, GPIO.IN)
         while not self.stop_event.is_set():
             try:
+                logger.debug("waiting for closing a device")
                 while True:
                     if not self.is_sensing():
                         break
-                    time.sleep(0.1)
+                    sleep(0.1)
+                logger.debug("detected a device")
                 token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_QR)
+                logger.debug("get token %s", token)
                 with sqlite3.connect(self.token_db_file) as cur:
                     cur.execute("INSERT INTO token(token, issuance_time) \
                         VALUES(?, ?)", (token, issuance_time))
                 while True:
                     if self.is_sensing():
                         break
-                    time.sleep(0.1)
+                    sleep(0.1)
             except:
                 logger.error("error: %s", traceback.format_exc())
             finally:

@@ -4,7 +4,7 @@ import logging
 import sys
 import traceback
 from threading import Event, Thread
-from time import time
+from time import time, sleep
 
 from nfc import ContactlessFrontend
 from nfc.ndef import Message, Record, UriRecord
@@ -27,8 +27,10 @@ class NfcIssuer(Thread):
         while not self.stop_event.is_set():
             try:
                 with ContactlessFrontend("usb") as clf:
+                    logger.info("touch NFC device: %s", clf)
                     token, issuance_time = self.api_client.issue_token(
                         ApiClient.TYPE_NFC)
+                    logger.debug("get token: %s", token)
                     started = time()
 
                     def terminate_check():
@@ -53,6 +55,7 @@ class NfcIssuer(Thread):
                     logger.debug("LLCP link is closed")
             except:
                 logger.error("error: %s", traceback.format_exc())
+                sleep(1)
         logger.info("process is stopped")
 
     def stop(self):
