@@ -64,7 +64,8 @@
         var clockArea;
         var qrUpdateTimeArea;
         var qrCode;
-        var lastToken;
+        var lastToken = null;
+        var isQrUpdating = false;
         window.onload = function() {
             qrImg = document.getElementById("qr_img");
             qrArea = document.getElementById("qr_area");
@@ -77,47 +78,52 @@
             statusArea = document.getElementById("status_area");
             setQrcode();
             setClock();
-            setInterval(setQrcode, 1000);
-            setInterval(setClock, 1000);
+            setInterval(setQrcode, 100);
+            setInterval(setClock, 100);
         }
 
         function setQrcode() {
-            var req;
-            if (window.XMLHttpRequest) {
-                req = new XMLHttpRequest();
-            } else if (window.ActiveXOject) {
-                req = new ActiveXObject('Microsoft.XMLHTTP');
-            } else {
-                statusArea.innerHTML = "AJAXが使えません";
-                return;
-            }
-            req.open("GET", GET_LATEST_TOKEN_URL, true);
-            req.onreadystatechange = function() {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        var resp = JSON.parse(req.responseText);
-                        var token = resp["token"];
-                        if (lastToken == null || token != lastToken) {
-                            var issuance_time = new Date(resp["issuance_time"].replace(/-/g, "/"));
-                            if (new Date() - issuance_time < 5 * 1000) {
-                                statusArea.innerHTML = "QRコード作成中";
-                                qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
-                                statusArea.innerHTML = "QRコードをスキャンできます";
-                                qrImg.style.display = "";
-                            }
-                            qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
-                            lastToken = token;
-                        }
-                    } else {
-                        statusArea.innerHTML = "トークン取得失敗";
-                    }
+            if (!isQrUpdating) {
+                var req;
+                if (window.XMLHttpRequest) {
+                    req = new XMLHttpRequest();
+                } else if (window.ActiveXOject) {
+                    req = new ActiveXObject('Microsoft.XMLHTTP');
+                } else {
+                    statusArea.innerHTML = "AJAXが使えません";
+                    return;
                 }
-            };
-            qr.clear();
-            qrImg.style.display = "none";
-            qrUpdateTimeArea.innerHTML = "";
-            statusArea.innerHTML = "トークン取得中";
-            req.send(null);
+                req.open("GET", GET_LATEST_TOKEN_URL, true);
+                req.onreadystatechange = function() {
+                    isQrUpdating = true;
+                    if (req.readyState == 4) {
+                        if (req.status == 200) {
+                            var resp = JSON.parse(req.responseText);
+                            var token = resp["token"];
+                            if (lastToken == null || token != lastToken) {
+                                var issuance_time = new Date(resp["issuance_time"].replace(/-/g, "/"));
+                                if (new Date() - issuance_time < 5 * 1000) {
+                                    statusArea.innerHTML = "QRコード作成中";
+                                    qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
+                                    statusArea.innerHTML = "QRコードをスキャンできます";
+                                    qrImg.style.display = "";
+                                    sleep(5 * 1000);
+                                }
+                                qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
+                                lastToken = token;
+                            }
+                        } else {
+                            statusArea.innerHTML = "トークン取得失敗";
+                        }
+                    }
+                    isQrUpdating = false;
+                };
+                qr.clear();
+                qrImg.style.display = "none";
+                qrUpdateTimeArea.innerHTML = "";
+                statusArea.innerHTML = "トークン取得中";
+                req.send(null);
+            }
         }
 
         function setClock() {
