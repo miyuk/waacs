@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 import os
 import sys
@@ -9,11 +8,11 @@ import time
 from ConfigParser import SafeConfigParser
 from logging.config import fileConfig
 from threading import Thread
+from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 import falcon
 
-from api import IssueTokenApi, RequestWifiAuthApi
-from wsgiref.simple_server import WSGIRequestHandler, make_server
+from api import ActivateToken, IssueTokenApi, RequestWifiAuthApi
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ pki_conf_dict = dict(config.items("PKI"))
 ca_crt = pki_conf_dict["ca_crt"]
 ca_key = pki_conf_dict["ca_key"]
 client_certs_dir = pki_conf_dict["client_certs_dir"]
-country = pki_conf_dict["country"];
+country = pki_conf_dict["country"]
 state = pki_conf_dict["state"]
 organization = pki_conf_dict["organization"]
 expiration_time = int(pki_conf_dict["expiration_time"])
@@ -43,9 +42,11 @@ encryption_type = pki_conf_dict["encryption_type"]
 def main(argv):
     requestwifi_api = RequestWifiAuthApi(db_conf_dict, pki_conf_dict)
     issuetoken_api = IssueTokenApi(db_conf_dict)
+    activatetoken_api = ActivateToken(db_conf_dict)
     app = falcon.API()
     app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)
     app.add_route("/issue_token/", issuetoken_api)
+    app.add_route("/activate_token/", activatetoken_api)
 
     class QuietHandler(WSGIRequestHandler):
 

@@ -21,6 +21,7 @@ class QrIssuer(Thread):
         self.update_inteval = int(qr_conf_dict["update_interval"])
         self.sensor_port = int(qr_conf_dict["sensor_port"])
         self.stop_event = Event()
+        self.next_token = self.api_client.issue_token(ApiClient.TYPE_QR)
 
     def run(self):
         GPIO.setwarnings(False)
@@ -34,15 +35,22 @@ class QrIssuer(Thread):
                         break
                     sleep(0.1)
                 logger.debug("detected a device")
-                token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_QR)
-                logger.debug("get token %s", token)
+                logger.debug("activting token: %s", self.next_token)
+                token = self.next_token
+                activation_time = self.api_client.activate_token(token)
+                self.next_token = None
                 with sqlite3.connect(self.token_db_file) as cur:
-                    cur.execute("INSERT INTO token(token, issuance_time) \
-                        VALUES(?, ?)", (token, issuance_time))
+                    cur.execute("UPDATE token SET activation_time = ?　WHERE token = ?",
+                                (activation_time, token))
                 while not self.stop_event.is_set():
                     if self.is_sensing():
                         break
                     sleep(0.1)
+                self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_QR)
+                logger.debug("get token %s", token)
+                cur.execute("INSERT INTO token(token, issuance_time) VALUES(?, ?)",
+                            (token, issuance_time))
+
             except:
                 logger.error("error: %s", traceback.format_exc())
             finally:

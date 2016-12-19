@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime
 
+from api.activatetoken import ActivateToken
 from api.issuetoken import IssueTokenApi
 from api.parameter import Parameter, TlsParameter, TtlsParameter
 from api.requestwifiauth import RequestWifiAuthApi

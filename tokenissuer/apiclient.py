@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import json
 import logging
 import sys
@@ -36,12 +35,28 @@ class ApiClient(object):
             logger.debug("send issue_token request to %s", url)
             r = requests.post(url, json.dumps(data))
             if r.status_code != requests.codes.ok:
-                raise RequestException(
-                    "API request error: {} ({})".format(url, r.status_code))
+                raise RequestException("API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
             token = data["token"]
             token_issuance_time = data["token_issuance_time"]
             return (token, token_issuance_time)
+        except Exception as e:
+            logger.error(e.message)
+            raise sys.exc_info()
+
+    def activate_token(self, token):
+        try:
+            url = "https://{0}:{1}/activate_token".format(self.server_address, self.server_port)
+            data = self.credential
+            data.update({"issuer_id": self.issuer_id,
+                         "token": token})
+            logger.debug("send token activation request to %s", url)
+            r = requests.post(url, json.dumps(data))
+            if r.status_code != requests.codes.ok:
+                raise RequestException("API request error: {} ({})".format(url, r.status_code))
+            data = json.loads(r.text)
+            activation_time = data["activation_time"]
+            return activation_time
         except Exception as e:
             logger.error(e.message)
             raise sys.exc_info()
