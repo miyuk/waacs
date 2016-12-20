@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 
 from nfc.ndef import Message, Record, UriRecord

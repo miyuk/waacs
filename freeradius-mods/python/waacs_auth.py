@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
-import os
 import re
 import traceback
-import MySQLdb
-from datetime import datetime, timedelta
-from radiusd import *
 from config import *
+from datetime import datetime, timedelta
+
+import MySQLdb
+
+from radiusd import *
 
 
 def authorize(p):

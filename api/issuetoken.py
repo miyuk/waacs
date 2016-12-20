@@ -2,7 +2,7 @@
 import json
 import logging
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import falcon
 import MySQLdb as db
