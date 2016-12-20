@@ -6,7 +6,6 @@ import logging
 import os
 import os.path
 import random
-import subprocess
 from datetime import datetime, timedelta
 
 import falcon
@@ -121,18 +120,17 @@ class RequestWifiAuthApi(object):
             eap_type = "EAP-TLS" if device_type == "iOS" else "EAP_TTLS"
             cur.execute("INSERT INTO user(user_id, password, issuance_time, \
                          access_issuer_id, eap_type) VALUES(%s, %s, %s, %s, %s)",
-                        (user_id, password, api.format_time(now), access_issuer_id, device_type))
+                        (user_id, password, api.format_time(now), access_issuer_id, eap_type))
             cur.execute("SELECT LAST_INSERT_ID() FROM user")
             serial = cur.fetchone()[0]
-            p12 = self.gen_certificate(
-                cur, serial, user_id, password)
+            p12 = self.gen_certificate(serial, user_id)
+            p12_export = p12.export(password)
             cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%d, %s)",
                         serial, os.path.join(self.certs_dir, user_id + ".p12"))
-            logger.debug(
-                "create credential user_id: %s password: %s", user_id, password)
+            logger.debug("create credential user_id: %s password: %s", user_id, password)
             if device_type == "iOS":
                 resp.content_type = MIMETYPE_MOBILECONFIG
-                config = make_mobileconfig_tls(ssid, user_id, crt, "waacs")
+                config = make_mobileconfig_tls(ssid, user_id, p12_export, "waacs")
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
@@ -154,7 +152,7 @@ class RequestWifiAuthApi(object):
                     (user_id, password, api.format_time(now)))
         return user_id, password
 
-    def gen_certificate(self, cur, serial, user_id, passphrase):
+    def gen_certificate(self, serial, user_id):
         key = crypto.PKey()
         key.generate_key(self.encryption_type, self.key_size)
         crt = crypto.X509()
@@ -173,4 +171,4 @@ class RequestWifiAuthApi(object):
         p12.set_privatekey(key)
         p12.set_certificate(crt)
         p12.set_ca_certificates(self.ca_key)
-        return p12.export(passphrase)
+        return p12
