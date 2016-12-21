@@ -43,7 +43,7 @@ class ActivateToken(object):
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             now = datetime.now()
-            cur.execute("UPDATE token SET activation_time = %s WHERE token = %s",
+            cur.execute("UPDATE token SET token_activation_time = %s WHERE token = %s",
                         (api.format_time(now), token))
             if cur.fetchone():
                 msg = {"status": "OK", "token_issuance_time": api.format_time(now)}
