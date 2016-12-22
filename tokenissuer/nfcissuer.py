@@ -19,7 +19,7 @@ class NfcIssuer(Thread):
         self.api_client = ApiClient(api_conf_dict)
         self.ssid = ssid
         self.stop_event = Event()
-        self.next_token = self.api_client.issue_token(ApiClient.TYPE_NFC)
+        self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
 
     def run(self):
         while not self.stop_event.is_set():

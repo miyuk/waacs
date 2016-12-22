@@ -22,7 +22,7 @@ class QrIssuer(Thread):
         self.update_inteval = int(qr_conf_dict["update_interval"])
         self.sensor_port = int(qr_conf_dict["sensor_port"])
         self.stop_event = Event()
-        self.next_token = self.api_client.issue_token(ApiClient.TYPE_QR)
+        self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_QR)
 
     def run(self):
         GPIO.setwarnings(False)
@@ -41,7 +41,7 @@ class QrIssuer(Thread):
                 activation_time = self.api_client.activate_token(token)
                 self.next_token = None
                 with sqlite3.connect(self.token_db_file) as cur:
-                    cur.execute("UPDATE token SET activation_time = ?　WHERE token = ?",
+                    cur.execute("UPDATE token SET activation_time = ? WHERE token = ?",
                                 (activation_time, token))
                 while not self.stop_event.is_set():
                     if self.is_sensing():
@@ -53,7 +53,7 @@ class QrIssuer(Thread):
                             (token, issuance_time))
 
             except:
-                logger.error("error: %s", traceback.format_exc())
+                logger.exception("error: %s", traceback.format_exc())
             finally:
                 self.stop_event.wait(self.update_inteval)
         logger.info("process is stopped")

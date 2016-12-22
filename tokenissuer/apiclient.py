@@ -41,12 +41,12 @@ class ApiClient(object):
             token_issuance_time = data["token_issuance_time"]
             return (token, token_issuance_time)
         except Exception as e:
-            logger.error(e.message)
+            logger.exception(e.message)
             raise sys.exc_info()
 
     def activate_token(self, token):
         try:
-            url = "https://{0}:{1}/activate_token".format(self.server_address, self.server_port)
+            url = "https://{0}:{1}/activate_token/".format(self.server_address, self.server_port)
             data = self.credential
             data.update({"issuer_id": self.issuer_id,
                          "token": token})
@@ -55,10 +55,10 @@ class ApiClient(object):
             if r.status_code != requests.codes.ok:
                 raise RequestException("API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
-            activation_time = data["activation_time"]
+            activation_time = data["token_activation_time"]
             return activation_time
         except Exception as e:
-            logger.error(e.message)
+            logger.exception(e.message)
             raise sys.exc_info()
 
     def requestwifi_url(self, ssid, token):
