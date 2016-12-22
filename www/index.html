@@ -29,7 +29,7 @@
 
         #info_area {
             width: 640px;
-            height: 480px;
+            height: calc(480px - 160px);
             float: left;
             padding: 0px 20px;
             background-color: lightcyan;
@@ -40,7 +40,7 @@
             width: calc(800px - 640px);
             height: calc(800px - 640px);
             background-color: lightyellow;
-            float: left;
+            float: right;;
             padding: 10px;
         }
 
@@ -49,11 +49,19 @@
             width: calc(800px - 640px - (2 * 10px));
         }
 
-        #blank_area {
+        #blank_area1 {
+            width: 640px;
+            height: calc(800px - 640px);
+            background-color: lightpink;
+            float: left;
+            display: flex;;
+        }
+
+        #blank_area2 {
             height: calc(480px - 160px);
             width: calc(800px - 640px);
             background-color: lightgreen;
-            float: left;
+            float: right;
         }
     </style>
     <script type="text/javascript">
@@ -83,47 +91,66 @@
         }
 
         function setQrcode() {
-            if (!isQrUpdating) {
-                var req;
-                if (window.XMLHttpRequest) {
-                    req = new XMLHttpRequest();
-                } else if (window.ActiveXOject) {
-                    req = new ActiveXObject('Microsoft.XMLHTTP');
-                } else {
-                    statusArea.innerHTML = "AJAXが使えません";
-                    return;
-                }
-                req.open("GET", GET_LATEST_TOKEN_URL, true);
-                req.onreadystatechange = function() {
-                    isQrUpdating = true;
-                    if (req.readyState == 4) {
-                        if (req.status == 200) {
+            if (isQrUpdating) {
+                return;
+            }
+            var req;
+            if (window.XMLHttpRequest) {
+                req = new XMLHttpRequest();
+            } else if (window.ActiveXOject) {
+                req = new ActiveXObject('Microsoft.XMLHTTP');
+            } else {
+                statusArea.innerHTML = "AJAXが使えません";
+                return;
+            }
+            req.open("GET", GET_LATEST_TOKEN_URL, true);
+            req.onreadystatechange = function() {
+                if (req.readyState == 4) {
+                    if (req.status == 200) {
+                        try {
+                            //次回以降のsetQrcode()をブロック
+                            isQrUpdating = true;
                             var resp = JSON.parse(req.responseText);
                             var token = resp["token"];
+                            if (token == null) {
+                                return;
+                            }
+                            //取得した最新トークンが前回更新したものと違うとき更新
                             if (lastToken == null || token != lastToken) {
-                                var issuance_time = new Date(resp["issuance_time"].replace(/-/g, "/"));
-                                if (new Date() - issuance_time < 5 * 1000) {
-                                    statusArea.innerHTML = "QRコード作成中";
-                                    qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
-                                    statusArea.innerHTML = "QRコードをスキャンできます";
-                                    qrImg.style.display = "";
-                                    sleep(5 * 1000);
-                                }
-                                qrUpdateTimeArea.innerHTML = formatDate(issuance_time);
+                                updateQr(token);
                                 lastToken = token;
                             }
-                        } else {
-                            statusArea.innerHTML = "トークン取得失敗";
+                            //activation_timeが存在するとき5秒間QRコード表示
+                            var activation_time = resp["activation_time"];
+                            if (activation_time == null) {
+                                return;
+                            }
+                            activation_time = new Date(resp["activation_time"].replace(/-/g, "/"));
+                            qrUpdateTimeArea.innerHTML = formatDate(activation_time);
+                            while (new Date() - activation_time < 5 * 1000) {
+                                statusArea.innerHTML = "QRコードをスキャンしてください";
+                                qrImg.style.display = "";
+                                sleep(100);
+                            }
+                        } catch (e) {
+                            statusArea.innerHTML = "エラー: " + e.message;
+                        } finally {
+                            isQrUpdating = false;
                         }
+                    } else {
+                        statusArea.innerHTML = "トークン取得失敗";
                     }
-                    isQrUpdating = false;
-                };
-                qr.clear();
-                qrImg.style.display = "none";
-                qrUpdateTimeArea.innerHTML = "";
-                statusArea.innerHTML = "トークン取得中";
-                req.send(null);
-            }
+                }
+            };
+            qr.clear();
+            qrImg.style.display = "none";
+            qrUpdateTimeArea.innerHTML = "";
+            statusArea.innerHTML = "携帯端末をかざしてください";
+            req.send(null);
+        }
+
+        function updateQr(token) {
+            qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
         }
 
         function setClock() {
@@ -152,6 +179,11 @@
 </head>
 
 <body>
+    <div id="blank_area1">
+    </div>
+    <div id="qr_area">
+        <div id="qr_img"></div>
+    </div>
     <div id="info_area">
         <p>
             現在時刻:
@@ -166,10 +198,8 @@
             <span id="status_area"></span>
         </p>
     </div>
-    <div id="qr_area">
-        <div id="qr_img"></div>
-    </div>
-    <div id="blank_area">
+
+    <div id="blank_area2">
     </div>
 </body>
 
