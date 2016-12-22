@@ -2,7 +2,6 @@
 
 import logging
 from threading import Event, Thread
-from time import sleep, time
 
 from nfc import ContactlessFrontend
 
@@ -19,42 +18,43 @@ class NfcIssuer(Thread):
         self.api_client = ApiClient(api_conf_dict)
         self.ssid = ssid
         self.stop_event = Event()
-        self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
 
     def run(self):
-        while not self.stop_event.is_set():
-            try:
+        self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
+        try:
+            while not self.stop_event.is_set():
                 with ContactlessFrontend("usb") as clf:
                     logger.info("touch NFC device: %s", clf)
-                    started = time()
 
                     def terminate_check():
-                        span = time() - started
-                        return span > 30 or self.stop_event.is_set()
+                        return self.stop_event.is_set()
                     llc = clf.connect(llcp={"on-connect": (lambda llc: False)},
                                       terminate=terminate_check)
                     if not llc:
-                        logger.warning("NFC connection timeout and continue...")
+                        logger.warning("LLCP link is not established. retry...")
                         continue
                     logger.debug("LLCP link is successfully established\n%s", llc)
-                    token = self.next_token
-                    self.api_client.activate_token(token)
-                    self.next_token = None
                     client = nfcclient.NfcClient(llc)
                     th = Thread(target=llc.run)
                     th.daemon = True
                     th.start()
+                    token = self.next_token
                     url = self.api_client.requestwifi_url(self.ssid, token)
+                    logger.debug("send waacs message")
                     client.send_waacs_message(url)
+                    self.debug("activating token: %s", token)
+                    activation_time = self.api_client.activate_token(token)
+                    logger.debug("activation time is %s", activation_time)
+                    self.next_token = None
                     logger.debug("LLCP link is closing")
                     th.join()
                     logger.debug("LLCP link is closed")
                 self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
-                logger.debug("get token: %s", self.next_token)
-            except Exception as e:
-                logger.exception(e)
-                sleep(1)
-        logger.info("process is stopped")
+                logger.debug("get token: %s at %s", self.next_token, issuance_time)
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            logger.info("process is stopped")
 
     def stop(self):
         logger.debug("process is stopping")

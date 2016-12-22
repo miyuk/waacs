@@ -42,7 +42,7 @@ class ApiClient(object):
             return (token, token_issuance_time)
         except Exception as e:
             logger.exception(e.message)
-            raise sys.exc_info()
+            return (None, None)
 
     def activate_token(self, token):
         try:
@@ -59,7 +59,7 @@ class ApiClient(object):
             return activation_time
         except Exception as e:
             logger.exception(e.message)
-            raise sys.exc_info()
+            return None
 
     def requestwifi_url(self, ssid, token):
         return "https://{0}:{1}/request_wifi_auth/{2}/{3}/".format(self.server_address,
