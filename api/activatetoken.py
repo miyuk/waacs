@@ -25,6 +25,7 @@ class ActivateToken(object):
 
     def on_post(self, req, resp):
         try:
+            logger.debug("on_post from {}".format(req.remote_addr))
             data = json.loads(req.stream.read())
             issuer_id = data["issuer_id"]
             issuer_password = data["issuer_password"]
@@ -45,10 +46,13 @@ class ActivateToken(object):
             now = datetime.now()
             cur.execute("UPDATE token SET token_activation_time = %s WHERE token = %s",
                         (api.format_time(now), token))
-            if cur.fetchone():
-                msg = {"status": "OK", "token_issuance_time": api.format_time(now)}
+            #if cur.fetchone():
+            if True:
+                logger.debug("activate token: {}".format(token))
+                resp.status = falcon.HTTP_200
+                msg = {"status": "OK", "token_activation_time": api.format_time(now)}
                 resp.body = json.dumps(msg)
             else:
-                msg = {"status": "NG"}
                 resp.status = falcon.HTTP_401
+                msg = {"status": "NG", "msg": "already activated token"}
                 resp.body = json.dumps(msg)
