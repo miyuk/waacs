@@ -2,7 +2,6 @@
 
 import logging
 import sqlite3
-import traceback
 from threading import Event, Thread
 from time import sleep
 
@@ -52,8 +51,8 @@ class QrIssuer(Thread):
                 cur.execute("INSERT INTO token(token, issuance_time) VALUES(?, ?)",
                             (token, issuance_time))
 
-            except:
-                logger.exception("error: %s", traceback.format_exc())
+            except Exception as e:
+                logger.exception(e)
             finally:
                 self.stop_event.wait(self.update_inteval)
         logger.info("process is stopped")

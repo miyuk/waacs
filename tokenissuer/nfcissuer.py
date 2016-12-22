@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import traceback
 from threading import Event, Thread
 from time import sleep, time
 
-import nfcclient
 from nfc import ContactlessFrontend
+
+import nfcclient
 from tokenissuer import ApiClient
 
 logger = logging.getLogger(__name__)
@@ -51,8 +51,8 @@ class NfcIssuer(Thread):
                     logger.debug("LLCP link is closed")
                 self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
                 logger.debug("get token: %s", self.next_token)
-            except:
-                logger.error("error: %s", traceback.format_exc())
+            except Exception as e:
+                logger.exception(e)
                 sleep(1)
         logger.info("process is stopped")
 

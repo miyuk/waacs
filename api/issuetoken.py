@@ -33,6 +33,7 @@ class IssueTokenApi(object):
             logger.debug("issuer auth(id: %s, password: %s)",
                          issuer_id, issuer_password)
         except Exception as e:
+            logger.exception(e)
             resp.status = falcon.HTTP_401
             return
         with db.connect(**self.db_conn_args) as cur:
