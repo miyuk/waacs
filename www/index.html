@@ -78,23 +78,22 @@
         var lastIssuanceTime = null;
         var lastActivationTime = null;
         var isQrUpdating = false;
+        var isQrDisplaying = false;
         window.onload = function() {
             qrImg = document.getElementById("qr_img");
-            qrImg.style.display = "none";
             qrArea = document.getElementById("qr_area");
             qr = new QRCode(qrImg, {
                 width: qrImg.clientWidth,
                 height: qrImg.clientHeight
             });
+            qrImg.style.display = "none";
             clockArea = document.getElementById("clock_area");
             qrUpdateTimeArea = document.getElementById("qr_update_time_area");
             statusArea = document.getElementById("status_area");
             setQrcode();
             setClock();
-            displayQrcode();
             setInterval(setQrcode, 100);
             setInterval(setClock, 100);
-            setInterval(displayQrcode, 100);
         }
 
         function setQrcode() {
@@ -130,14 +129,14 @@
                                 updateQrcode(token);
                                 lastToken = token;
                                 lastIssuanceTime = issuanceTime;
+                                qrUpdateTimeArea.innerHTML = formatDate(issuanceTime);
                                 statusArea.innerHTML = "携帯端末をかざしてください";
                             }
                             //activation_timeが存在するとき5秒間QRコード表示
                             if (activationTimeStr != null) {
                                 activationTime = new Date(activationTimeStr.replace(/-/g, "/"));
                                 lastActivationTime = activationTime;
-                                qrUpdateTimeArea.innerHTML = formatDate(activationTime);
-                                displayQrcode(activationTime + 5 * 1000);
+                                displayQrcode(activationTime.getTime() + 5 * 1000);
                             }
                         } catch (e) {
                             statusArea.innerHTML = "エラー: " + e.message;
@@ -158,7 +157,7 @@
         }
 
         function displayQrcode(end) {
-            if (new Date() <= end) {
+            if (new Date().getTime() <= end) {
                 isQrDisplaying = true;
                 statusArea.innerHTML = "QRコードをスキャンしてください";
                 qrImg.style.display = "";
@@ -209,7 +208,7 @@
             <span id="clock_area"></span>
         </p>
         <p>
-            QR更新時間:
+            最終更新時間:
             <span id="qr_update_time_area"></span>
         </p>
         <p>
