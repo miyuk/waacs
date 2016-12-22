@@ -40,7 +40,8 @@
             width: calc(800px - 640px);
             height: calc(800px - 640px);
             background-color: lightyellow;
-            float: right;;
+            float: right;
+            ;
             padding: 10px;
         }
 
@@ -54,7 +55,8 @@
             height: calc(800px - 640px);
             background-color: lightpink;
             float: left;
-            display: flex;;
+            display: flex;
+            ;
         }
 
         #blank_area2 {
@@ -73,9 +75,12 @@
         var qrUpdateTimeArea;
         var qrCode;
         var lastToken = null;
+        var lastIssuanceTime = null;
+        var lastActivationTime = null;
         var isQrUpdating = false;
         window.onload = function() {
             qrImg = document.getElementById("qr_img");
+            qrImg.style.display = "none";
             qrArea = document.getElementById("qr_area");
             qr = new QRCode(qrImg, {
                 width: qrImg.clientWidth,
@@ -86,12 +91,14 @@
             statusArea = document.getElementById("status_area");
             setQrcode();
             setClock();
+            displayQrcode();
             setInterval(setQrcode, 100);
             setInterval(setClock, 100);
+            setInterval(displayQrcode, 100);
         }
 
         function setQrcode() {
-            if (isQrUpdating) {
+            if (isQrUpdating || isQrDisplaying) {
                 return;
             }
             var req;
@@ -112,25 +119,25 @@
                             isQrUpdating = true;
                             var resp = JSON.parse(req.responseText);
                             var token = resp["token"];
+                            var issuanceTimeStr = resp["issuance_time"];
+                            issuanceTime = new Date(issuanceTimeStr.replace(/-/g, "/"));
+                            var activationTimeStr = resp["activation_time"];
                             if (token == null) {
                                 return;
                             }
                             //取得した最新トークンが前回更新したものと違うとき更新
                             if (lastToken == null || token != lastToken) {
-                                updateQr(token);
+                                updateQrcode(token);
                                 lastToken = token;
+                                lastIssuanceTime = issuanceTime;
+                                statusArea.innerHTML = "携帯端末をかざしてください";
                             }
                             //activation_timeが存在するとき5秒間QRコード表示
-                            var activation_time = resp["activation_time"];
-                            if (activation_time == null) {
-                                return;
-                            }
-                            activation_time = new Date(resp["activation_time"].replace(/-/g, "/"));
-                            qrUpdateTimeArea.innerHTML = formatDate(activation_time);
-                            while (new Date() - activation_time < 5 * 1000) {
-                                statusArea.innerHTML = "QRコードをスキャンしてください";
-                                qrImg.style.display = "";
-                                sleep(100);
+                            if (activationTimeStr != null) {
+                                activationTime = new Date(activationTimeStr.replace(/-/g, "/"));
+                                lastActivationTime = activationTime;
+                                qrUpdateTimeArea.innerHTML = formatDate(activationTime);
+                                displayQrcode(activationTime + 5 * 1000);
                             }
                         } catch (e) {
                             statusArea.innerHTML = "エラー: " + e.message;
@@ -142,15 +149,27 @@
                     }
                 }
             };
-            qr.clear();
-            qrImg.style.display = "none";
-            qrUpdateTimeArea.innerHTML = "";
-            statusArea.innerHTML = "携帯端末をかざしてください";
             req.send(null);
         }
 
-        function updateQr(token) {
+        function updateQrcode(token) {
+            qr.clear();
             qr.makeCode("https://waacs.under-mu.com/secure.waacs.under-mu.com/" + token + "/");
+        }
+
+        function displayQrcode(end) {
+            if (new Date() <= end) {
+                isQrDisplaying = true;
+                statusArea.innerHTML = "QRコードをスキャンしてください";
+                qrImg.style.display = "";
+                setTimeout(function() {
+                    displayQrcode(end)
+                }, 100);
+            } else {
+                qrImg.style.display = "none";
+                statusArea.innerHTML = "お待ち下さい";
+                isQrDisplaying = false;
+            }
         }
 
         function setClock() {
@@ -194,7 +213,7 @@
             <span id="qr_update_time_area"></span>
         </p>
         <p>
-            ステータス:
+            状態:
             <span id="status_area"></span>
         </p>
     </div>
