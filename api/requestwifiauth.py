@@ -7,6 +7,7 @@ import os
 import os.path
 import random
 from datetime import datetime, timedelta
+from pytz import timezone
 
 import falcon
 import MySQLdb as db
@@ -33,10 +34,10 @@ def make_mobileconfig_ttls(ssid, user_id, password):
 def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass, expiration_time):
     config = open(templete_tls_file_path).read()
     cert_format_content = base64.encodestring(cert_content)
-    remaining_seconds = (expiration_time - datetime.now()).seconds
+    remaining_seconds = int((expiration_time - datetime.now()).total_seconds())
     return config.replace("$ssid", ssid).replace("$cert_name", cert_name,)\
         .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)\
-        .replace("$remaining_seconds", remaining_seconds)
+        .replace("$remaining_seconds", str(remaining_seconds))
 
 
 def make_waacsconfig_ttls(ssid, user_id, password):
@@ -89,9 +90,10 @@ class RequestWifiAuthApi(object):
         else:
             logger.warning("encryption type is not set")
         self.key_size = int(pki_conf_dict["key_size"])
-        self.expiration_time = int(pki_conf_dict["expiration_time"])
+        self.expiration_timespan = int(pki_conf_dict["expiration_timespan"])
 
     def on_get(self, req, resp, ssid, token):
+        logger.debug("request wifiauth for {}  by token id {}".format(ssid, token))
         now = datetime.now()
         if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             device_type = "iOS"
@@ -101,31 +103,38 @@ class RequestWifiAuthApi(object):
             resp.status = falcon.HTTP_401
             resp.body = "This system is iPhone and Android only"
             return
+        logger.debug("accessed device type is {}".format(device_type))
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
-                "SELECT access_issuer_id, token_issuance_time FROM token \
+                "SELECT access_issuer_id, token_activation_time FROM token \
                  WHERE token = %s", (token, ))
             if not rownum:
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
+                resp.body = "Error: invalid token (deleted or unregistered)"
                 return
-            access_issuer_id, token_issuance_time = cur.fetchone()
-            # TODO
-            if now - token_issuance_time > timedelta(seconds=60):
+            access_issuer_id, token_activation_time = cur.fetchone()
+            logger.debug("token {} is activated by {} at {}".format(token, access_issuer_id, token_activation_time))
+            # TODO because debug
+            if False:
+            #if now - token_issuance_time > timedelta(seconds=60):
                 logger.warning("expiration token: %s", token)
                 resp.status = falcon.HTTP_401
+                resp.body = "Error: expiration token"
                 return
+            logger.debug("token is valid")
             cur.execute("DELETE FROM token WHERE token = %s", (token, ))
             eap_type = "EAP-TLS" if device_type == "iOS" else "EAP_TTLS"
             user_id, password, serial = self.gen_credential(cur, eap_type)
-            p12 = self.gen_certificate(serial, user_id)
+            p12, expiration_time = self.gen_certificate(serial, user_id)
+            logger.debug("certificate {} expiration_time {}".format(p12.get_friendlyname(), expiration_time))
             p12_export = p12.export(password)
-            cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%d, %s)",
-                        serial, os.path.join(self.certs_dir, user_id + ".p12"))
+            cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%s, %s)",
+                        (str(serial), os.path.join(self.client_certs_dir, user_id + ".p12")))
             logger.debug("create credential user_id: %s password: %s", user_id, password)
             if device_type == "iOS":
                 resp.content_type = MIMETYPE_MOBILECONFIG
-                config = make_mobileconfig_tls(ssid, user_id, p12_export, "waacs")
+                config = make_mobileconfig_tls(ssid, user_id, p12_export, "waacs", expiration_time)
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
@@ -157,7 +166,10 @@ class RequestWifiAuthApi(object):
         sbj.O = self.O
         sbj.CN = user_id
         crt.gmtime_adj_notBefore(0)
-        crt.gmtime_adj_notAfter(self.expiration_time)
+        crt.gmtime_adj_notAfter(self.expiration_timespan)
+        exp_time_utc = datetime.strptime(crt.get_notAfter(), "%Y%m%d%H%M%SZ")
+        tz = timezone("Asia/Tokyo")
+        exp_time_jst = tz.fromutc(exp_time_utc).astimezone(tz).replace(tzinfo=None)
         crt.set_serial_number(serial)
         crt.set_issuer(self.ca_crt.get_subject())
         crt.set_pubkey(key)
@@ -165,5 +177,5 @@ class RequestWifiAuthApi(object):
         p12 = crypto.PKCS12()
         p12.set_privatekey(key)
         p12.set_certificate(crt)
-        p12.set_ca_certificates(self.ca_key)
-        return p12
+        p12.set_ca_certificates([self.ca_crt])
+        return p12, exp_time_jst

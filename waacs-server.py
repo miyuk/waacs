@@ -34,7 +34,7 @@ client_certs_dir = pki_conf_dict["client_certs_dir"]
 country = pki_conf_dict["country"]
 state = pki_conf_dict["state"]
 organization = pki_conf_dict["organization"]
-expiration_time = int(pki_conf_dict["expiration_time"])
+expiration_timespan = int(pki_conf_dict["expiration_timespan"])
 key_size = int(pki_conf_dict["key_size"])
 encryption_type = pki_conf_dict["encryption_type"]
 
