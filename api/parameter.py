@@ -50,9 +50,9 @@ class Parameter:
             param.tls_parameter = TlsParameter.parse(dct[cls.TLS_PARAMETER])
         elif param.eap_type == TYPE_TTLS:
             param.ttls_parameter = TtlsParameter.parse(dct[cls.TTLS_PARAMETER])
-        if ISSUANCE_TIME in dct:
+        if cls.ISSUANCE_TIME in dct:
             param.issuance_time = api.parse_time(dct[cls.ISSUANCE_TIME])
-        if EXPIRATION_TIME in dct:
+        if cls.EXPIRATION_TIME in dct:
             param.expiration_time = api.parse_time(dct[cls.EXPIRATION_TIME])
         return param
 

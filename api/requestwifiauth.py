@@ -103,7 +103,7 @@ class RequestWifiAuthApi(object):
             return
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
-                "SELECT access_issuer_id, token_issuance_time　FROM token \
+                "SELECT access_issuer_id, token_issuance_time FROM token \
                  WHERE token = %s", (token, ))
             if not rownum:
                 logger.warning("not found token: %s", token)
@@ -116,13 +116,8 @@ class RequestWifiAuthApi(object):
                 resp.status = falcon.HTTP_401
                 return
             cur.execute("DELETE FROM token WHERE token = %s", (token, ))
-            user_id, password = self.gen_credential(cur)
             eap_type = "EAP-TLS" if device_type == "iOS" else "EAP_TTLS"
-            cur.execute("INSERT INTO user(user_id, password, issuance_time, \
-                         access_issuer_id, eap_type) VALUES(%s, %s, %s, %s, %s)",
-                        (user_id, password, api.format_time(now), access_issuer_id, eap_type))
-            cur.execute("SELECT LAST_INSERT_ID() FROM user")
-            serial = cur.fetchone()[0]
+            user_id, password, serial = self.gen_credential(cur, eap_type)
             p12 = self.gen_certificate(serial, user_id)
             p12_export = p12.export(password)
             cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%d, %s)",
@@ -137,20 +132,20 @@ class RequestWifiAuthApi(object):
                 config = make_waacsconfig_ttls(ssid, user_id, password)
                 resp.body = config
 
-    def gen_credential(self, cur):
+    def gen_credential(self, cur, eap_type):
         while True:
             now = datetime.now()
-            user_id = "".join([random.choice(api.SOURCE_CHAR)
-                               for x in range(32)])
-            cur.execute(
-                "SELECT TRUE FROM user WHERE user_id = %s", (user_id, ))
-            if cur.fetchone():
+            user_id = "".join([random.choice(api.SOURCE_CHAR) for x in range(32)])
+            cur.execute("SELECT TRUE FROM user WHERE user_id = %s", (user_id, ))
+            if not cur.fetchone():
                 break
         password = "".join([random.choice(api.SOURCE_CHAR)
                             for x in range(32)])
-        cur.execute("INSERT INTO user(user_id, password, issuance_time) VALUES(%s, %s, %s)",
-                    (user_id, password, api.format_time(now)))
-        return user_id, password
+        cur.execute("INSERT INTO user(user_id, password, issuance_time, eap_type) VALUES(%s, %s, %s, %s)",
+                    (user_id, password, api.format_time(now), eap_type))
+        cur.execute("SELECT LAST_INSERT_ID() FROM user")
+        serial = cur.fetchone()[0]
+        return user_id, password, serial
 
     def gen_certificate(self, serial, user_id):
         key = crypto.PKey()
