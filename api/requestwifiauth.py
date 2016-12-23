@@ -6,12 +6,12 @@ import logging
 import os
 import os.path
 import random
-from datetime import datetime, timedelta
-from pytz import timezone
+from datetime import datetime
 
 import falcon
 import MySQLdb as db
 from OpenSSL import crypto
+from pytz import timezone
 
 import api
 from parameter import (TYPE_TLS, TYPE_TTLS, Parameter, TlsParameter,
@@ -114,10 +114,11 @@ class RequestWifiAuthApi(object):
                 resp.body = "Error: invalid token (deleted or unregistered)"
                 return
             access_issuer_id, token_activation_time = cur.fetchone()
-            logger.debug("token {} is activated by {} at {}".format(token, access_issuer_id, token_activation_time))
+            logger.debug("token {} is activated by {} at {}".format(
+                token, access_issuer_id, token_activation_time))
             # TODO because debug
             if False:
-            #if now - token_issuance_time > timedelta(seconds=60):
+                # if now - token_issuance_time > timedelta(seconds=60):
                 logger.warning("expiration token: %s", token)
                 resp.status = falcon.HTTP_401
                 resp.body = "Error: expiration token"
@@ -125,9 +126,10 @@ class RequestWifiAuthApi(object):
             logger.debug("token is valid")
             cur.execute("DELETE FROM token WHERE token = %s", (token, ))
             eap_type = "EAP-TLS" if device_type == "iOS" else "EAP_TTLS"
-            user_id, password, serial = self.gen_credential(cur, eap_type)
+            user_id, password, serial = self.gen_credential(cur, access_issuer_id, eap_type)
             p12, expiration_time = self.gen_certificate(serial, user_id)
-            logger.debug("certificate {} expiration_time {}".format(p12.get_friendlyname(), expiration_time))
+            logger.debug("certificate {} expiration_time {}".format(
+                p12.get_friendlyname(), expiration_time))
             p12_export = p12.export(password)
             cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%s, %s)",
                         (str(serial), os.path.join(self.client_certs_dir, user_id + ".p12")))
@@ -141,17 +143,18 @@ class RequestWifiAuthApi(object):
                 config = make_waacsconfig_ttls(ssid, user_id, password)
                 resp.body = config
 
-    def gen_credential(self, cur, eap_type):
+    def gen_credential(self, cur, access_issuer_id, eap_type):
+        now = datetime.now()
         while True:
-            now = datetime.now()
             user_id = "".join([random.choice(api.SOURCE_CHAR) for x in range(32)])
             cur.execute("SELECT TRUE FROM user WHERE user_id = %s", (user_id, ))
             if not cur.fetchone():
                 break
         password = "".join([random.choice(api.SOURCE_CHAR)
                             for x in range(32)])
-        cur.execute("INSERT INTO user(user_id, password, issuance_time, eap_type) VALUES(%s, %s, %s, %s)",
-                    (user_id, password, api.format_time(now), eap_type))
+        cur.execute("INSERT INTO user(user_id, password, issuance_time, access_issuer_id, eap_type) \
+                     VALUES(%s, %s, %s, %s, %s)",
+                    (user_id, password, api.format_time(now), access_issuer_id, eap_type))
         cur.execute("SELECT LAST_INSERT_ID() FROM user")
         serial = cur.fetchone()[0]
         return user_id, password, serial
