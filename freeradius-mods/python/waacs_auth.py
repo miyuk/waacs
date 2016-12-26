@@ -96,7 +96,22 @@ def format_mac_addr(mac):
 def post_auth(p):
     radlog(L_INFO, "*** python post_auth ***")
     radlog(L_INFO, str(p))
-    return RLM_MODULE_NOOP
+    user_id = get_attribute(p, "User-Name")
+    tsstr = " ".join(get_attribute(p, "Event-Timestamp").split(" ")[:-1])  # タイムゾーン部分を削除
+    timestamp = datetime.strptime(tsstr, "%b %d %Y %H:%M:%S")
+    eap_type = get_attribute(p, "EAP-Type")
+    radlog("EAP type is {}".format(eap_type))
+    try:
+        with db.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cur:
+            cur.execute("UPDATE IGNORE log SET cred_auth_time = %s \
+                         WHERE user_id = %s AND cred_auth_time IS NULL",
+                        (timestamp, user_id, ))
+    except Exception as e:
+        radlog(L_ERR, "error: {0}".format(str(e)))
+        for line in traceback.format_exc().split("\n"):
+            radlog(L_ERR, line)
+        return RLM_MODULE_REJECT
+    return RLM_MODULE_OK
 
 
 def get_attribute(p, attr_name):

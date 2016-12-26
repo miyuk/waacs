@@ -46,7 +46,7 @@ class ActivateToken(object):
             now = datetime.now()
             cur.execute("UPDATE token SET token_activation_time = %s WHERE token = %s",
                         (api.format_time(now), token))
-            #if cur.fetchone():
+            # if cur.fetchone():
             if True:
                 logger.debug("activate token: {}".format(token))
                 resp.status = falcon.HTTP_200
@@ -56,3 +56,7 @@ class ActivateToken(object):
                 resp.status = falcon.HTTP_401
                 msg = {"status": "NG", "msg": "already activated token"}
                 resp.body = json.dumps(msg)
+                return
+            cur.execute("UPDATE IGNORE log SET token_act_time = %s \
+                         WHERE token = %s AND token_act_time IS NULL",
+                        (api.format_time(now), token))

@@ -93,6 +93,7 @@ class RequestWifiAuthApi(object):
         self.expiration_timespan = int(pki_conf_dict["expiration_timespan"])
 
     def on_get(self, req, resp, token):
+        now = datetime.now()
         logger.debug("request wifiauth by token: {}".format(token))
         if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             device_type = "iOS"
@@ -142,6 +143,9 @@ class RequestWifiAuthApi(object):
                 resp.content_type = MIMETYPE_WAACSCONFIG
                 config = make_waacsconfig_ttls(association_ssid, user_id, password)
                 resp.body = config
+            cur.execute("UPDATE IGNORE log SET user_id = %s, cred_issu_time = %s \
+                         WHERE token = %s AND user_id IS NULL AND cred_issu_time IS NULL",
+                        (user_id, api.format_time(now), token))
 
     def gen_credential(self, cur, access_issuer_id, eap_type):
         now = datetime.now()

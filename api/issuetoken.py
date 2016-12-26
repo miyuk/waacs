@@ -59,6 +59,8 @@ class IssueTokenApi(object):
             cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, \
                          access_type, association_ssid) VALUES(%s, %s, %s, %s, %s)",
                         (token, now_str, issuer_id, access_type, association_ssid))
+            cur.execute("INSERT IGNORE INTO log (token, token_issu_time) VALUES(%s, %s)",
+                        (token, now_str))
         logger.debug("issue token success")
         msg = {"token": token, "token_issuance_time": now_str}
         resp.body = json.dumps(msg)
