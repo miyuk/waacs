@@ -94,7 +94,6 @@ class RequestWifiAuthApi(object):
 
     def on_get(self, req, resp, ssid, token):
         logger.debug("request wifiauth for {}  by token id {}".format(ssid, token))
-        now = datetime.now()
         if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             device_type = "iOS"
         elif "Android" in req.user_agent:
@@ -136,7 +135,7 @@ class RequestWifiAuthApi(object):
             logger.debug("create credential user_id: %s password: %s", user_id, password)
             if device_type == "iOS":
                 resp.content_type = MIMETYPE_MOBILECONFIG
-                config = make_mobileconfig_tls(ssid, user_id, p12_export, "waacs", expiration_time)
+                config = make_mobileconfig_tls(ssid, user_id, p12_export, password, expiration_time)
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
