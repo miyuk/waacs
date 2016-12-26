@@ -5,9 +5,6 @@ HOST = "localhost"
 USER = "waacs"
 PASSWD = "waacs"
 DB = "waacs"
-USER_TBL = "user"
-DEVICE_TBL = "user_device"
-ISSUER_TBL = "issuer"
 
 # WAACS config
 FIRST_ACCESS_TIMEOUT = 60

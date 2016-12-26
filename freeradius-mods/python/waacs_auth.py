@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 
 import MySQLdb as db
 
-from config import (DB, DEVICE_TBL, EXPIRATION_TIMESPAN, FIRST_ACCESS_TIMEOUT,
-                    HOST, ISSUER_TBL, MAX_DEVICES, PASSWD, USER, USER_TBL)
+from config import (DB, EXPIRATION_TIMESPAN, FIRST_ACCESS_TIMEOUT, HOST,
+                    MAX_DEVICES, PASSWD, USER)
 from radiusd import (L_AUTH, L_DBG, L_ERR, L_INFO, L_PROXY, RLM_MODULE_FAIL,
                      RLM_MODULE_HANDLED, RLM_MODULE_INVALID, RLM_MODULE_NOOP,
                      RLM_MODULE_NOTFOUND, RLM_MODULE_NUMCODES, RLM_MODULE_OK,
@@ -21,7 +21,7 @@ TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 def authorize(p):
     radlog(L_INFO, "*** python authorize ***")
     radlog(L_INFO, str(p))
-    return RLM_MODULE_NOOP
+    return RLM_MODULE_OK
 
 
 def authenticate(p):
@@ -38,7 +38,7 @@ def authenticate(p):
             # パスワードチェック→有効期限チェック→同時接続数チェック→認証
             line_num = cur.execute("SELECT password, issuance_time, authentication_time, \
                                     access_issuer_id, eap_type \
-                                    FROM %s WHERE user_id = %s", (USER_TBL, user_id))
+                                    FROM user WHERE user_id = %s", (user_id, ))
             # 登録されていなければReject
             if not line_num:
                 radlog(L_AUTH, "not found user: {0}".format(user_id))
@@ -60,10 +60,10 @@ def authenticate(p):
                     radlog(L_AUTH, "first access timeout")
                     return RLM_MODULE_REJECT
                 # TODO post_authに移動させる
-                cur.execute("UPDATE %s SET authentication_time = %s WHERE user_id = %s",
-                            (USER_TBL, timestamp.strftime(TIME_FORMAT), user_id))
+                cur.execute("UPDATE user SET authentication_time = %s WHERE user_id = %s",
+                            (timestamp.strftime(TIME_FORMAT), user_id))
             # 接続機器チェック
-            cur.execute("SELECT mac_address FROM %s WHERE user_id = %s", (DEVICE_TBL, user_id))
+            cur.execute("SELECT mac_address FROM user_device WHERE user_id = %s", (user_id, ))
             connected_mac_addrs = [v[0] for v in cur.fetchall()]
             if not (mac_addr in connected_mac_addrs):
                 # 台数制限でReject
@@ -71,9 +71,9 @@ def authenticate(p):
                     radlog(L_AUTH, "limit of deveices")
                     return RLM_MODULE_REJECT
                 radlog(L_INFO, "first access device")
-                cur.execute("INSERT INTO %s (user_id, mac_address, first_access_time, first_access_ap) \
+                cur.execute("INSERT INTO user_device (user_id, mac_address, first_access_time, first_access_ap) \
                     VALUES (%s, %s, %s, %s)",
-                            (DEVICE_TBL, user_id, mac_addr, timestamp.strftime(TIME_FORMAT), ap_id))
+                            (user_id, mac_addr, timestamp.strftime(TIME_FORMAT), ap_id))
             else:
                 radlog(L_INFO, "{0} has been already connected".format(mac_addr))
             return RLM_MODULE_OK
