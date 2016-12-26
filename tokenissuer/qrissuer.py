@@ -13,10 +13,9 @@ logger = logging.getLogger(__name__)
 
 class QrIssuer(Thread):
 
-    def __init__(self, ssid, api_conf_dict, qr_conf_dict):
+    def __init__(self, api_client, qr_conf_dict):
         super(QrIssuer, self).__init__()
-        self.ssid = ssid
-        self.api_client = ApiClient(api_conf_dict)
+        self.api_client = api_client
         self.token_db_file = qr_conf_dict["token_db_file"]
         self.update_inteval = int(qr_conf_dict["update_interval"])
         self.sensor_port = int(qr_conf_dict["sensor_port"])

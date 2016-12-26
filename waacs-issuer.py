@@ -8,7 +8,7 @@ import time
 from ConfigParser import SafeConfigParser
 from logging.config import fileConfig
 
-from tokenissuer import NfcIssuer, QrIssuer
+from tokenissuer import ApiClient, NfcIssuer, QrIssuer
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +18,14 @@ config = SafeConfigParser()
 config.read(os.path.join(sys.path[0], "config/issuer.cfg"))
 qr_conf_dict = dict(config.items("QrIssuer"))
 wifi_conf_dict = dict(config.items("WifiInfo"))
-ssid = wifi_conf_dict["ssid"]
 api_conf_dict = dict(config.items("ApiClient"))
 
 
 def main(argv):
-    nfc_issuer = NfcIssuer(ssid, api_conf_dict)
+    api_client = ApiClient(api_conf_dict, wifi_conf_dict)
+    nfc_issuer = NfcIssuer(api_client)
     nfc_issuer.start()
-    qr_issuer = QrIssuer(ssid, api_conf_dict, qr_conf_dict)
+    qr_issuer = QrIssuer(api_client, qr_conf_dict)
     qr_issuer.start()
     try:
         while True:

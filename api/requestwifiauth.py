@@ -92,8 +92,8 @@ class RequestWifiAuthApi(object):
         self.key_size = int(pki_conf_dict["key_size"])
         self.expiration_timespan = int(pki_conf_dict["expiration_timespan"])
 
-    def on_get(self, req, resp, ssid, token):
-        logger.debug("request wifiauth for {}  by token id {}".format(ssid, token))
+    def on_get(self, req, resp, token):
+        logger.debug("request wifiauth by token id {}".format(token))
         if "iPhone" in req.user_agent or "iPad" in req.user_agent:
             device_type = "iOS"
         elif "Android" in req.user_agent:
@@ -105,14 +105,14 @@ class RequestWifiAuthApi(object):
         logger.debug("accessed device type is {}".format(device_type))
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
-                "SELECT access_issuer_id, token_activation_time FROM token \
+                "SELECT access_issuer_id, token_activation_time, association_ssid FROM token \
                  WHERE token = %s", (token, ))
             if not rownum:
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
                 resp.body = "Error: invalid token (deleted or unregistered)"
                 return
-            access_issuer_id, token_activation_time = cur.fetchone()
+            access_issuer_id, token_activation_time, association_ssid = cur.fetchone()
             logger.debug("token {} is activated by {} at {}".format(
                 token, access_issuer_id, token_activation_time))
             # TODO because debug
@@ -135,11 +135,12 @@ class RequestWifiAuthApi(object):
             logger.debug("create credential user_id: %s password: %s", user_id, password)
             if device_type == "iOS":
                 resp.content_type = MIMETYPE_MOBILECONFIG
-                config = make_mobileconfig_tls(ssid, user_id, p12_export, password, expiration_time)
+                config = make_mobileconfig_tls(
+                    association_ssid, user_id, p12_export, password, expiration_time)
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
-                config = make_waacsconfig_ttls(ssid, user_id, password)
+                config = make_waacsconfig_ttls(association_ssid, user_id, password)
                 resp.body = config
 
     def gen_credential(self, cur, access_issuer_id, eap_type):

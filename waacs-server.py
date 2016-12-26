@@ -8,11 +8,11 @@ import time
 from ConfigParser import SafeConfigParser
 from logging.config import fileConfig
 from threading import Thread
-from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 import falcon
 
 from api import ActivateToken, IssueTokenApi, RequestWifiAuthApi
+from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def main(argv):
     issuetoken_api = IssueTokenApi(db_conf_dict)
     activatetoken_api = ActivateToken(db_conf_dict)
     app = falcon.API()
-    app.add_route("/request_wifi_auth/{ssid}/{token}", requestwifi_api)
+    app.add_route("/request_wifi_auth/{token}", requestwifi_api)
     app.add_route("/issue_token/", issuetoken_api)
     app.add_route("/activate_token/", activatetoken_api)
 

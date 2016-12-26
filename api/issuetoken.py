@@ -30,13 +30,15 @@ class IssueTokenApi(object):
             issuer_id = data["issuer_id"]
             issuer_password = data["issuer_password"]
             access_type = data["access_type"]
-            logger.debug("issuer auth(id: %s, password: %s)",
-                         issuer_id, issuer_password)
+            association_ssid = data["association_ssid"]
+            logger.debug("on_post for ssid %s by %s", association_ssid, access_type)
         except Exception as e:
             logger.exception(e)
             resp.status = falcon.HTTP_401
             return
         with db.connect(**self.db_conn_args) as cur:
+            logger.debug("issuer authentication: (id: %s, password: %s)",
+                         issuer_id, issuer_password)
             rownum = cur.execute(
                 "SELECT password FROM issuer WHERE issuer_id = %s", (issuer_id, ))
             if not rownum:
@@ -46,16 +48,17 @@ class IssueTokenApi(object):
             if not issuer_password == cur.fetchone()[0]:
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
+                logger.debug("issuer authentication is passed")
             while True:
                 token = "".join([random.choice(api.SOURCE_CHAR)
                                  for x in range(32)])
-                cur.execute(
-                    "SELECT TRUE FROM token WHERE token = %s", (token, ))
+                cur.execute("SELECT TRUE FROM token WHERE token = %s", (token, ))
                 if not cur.fetchone():
                     break
             now_str = api.format_time(datetime.now())
-            cur.execute("INSERT INTO token(token, token_issuance_time, \
-                         access_issuer_id, access_type) VALUES(%s, %s, %s, %s)",
-                        (token, now_str, issuer_id, access_type))
+            cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, \
+                         access_type, association_ssid) VALUES(%s, %s, %s, %s, %s)",
+                        (token, now_str, issuer_id, access_type, association_ssid))
+        logger.debug("issue token success")
         msg = {"token": token, "token_issuance_time": now_str}
         resp.body = json.dumps(msg)

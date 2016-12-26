@@ -13,10 +13,9 @@ logger = logging.getLogger(__name__)
 
 class NfcIssuer(Thread):
 
-    def __init__(self, ssid, api_conf_dict):
+    def __init__(self, api_client):
         super(NfcIssuer, self).__init__()
-        self.api_client = ApiClient(api_conf_dict)
-        self.ssid = ssid
+        self.api_client = api_client
         self.stop_event = Event()
 
     def run(self):
@@ -39,7 +38,7 @@ class NfcIssuer(Thread):
                     th.daemon = True
                     th.start()
                     token = self.next_token
-                    url = self.api_client.requestwifi_url(self.ssid, token)
+                    url = self.api_client.request_wifi_url(token)
                     logger.debug("send waacs message")
                     client.send_waacs_message(url)
                     self.debug("activating token: %s", token)
