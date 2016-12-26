@@ -48,12 +48,6 @@ def authenticate(p):
             if(password != true_pass):
                 radlog(L_AUTH, "mismatch password for user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
-            # 有効時間はconfigで設定
-            expr_time = (auth_time + timedelta(seconds=EXPIRATION_TIMESPAN)).strftime(TIME_FORMAT)
-            # 有効期限切れならReject
-            if timestamp > expr_time:
-                radlog(L_AUTH, "expired authentication user: {0}".format(user_id))
-                return RLM_MODULE_REJECT
             if not auth_time:
                 # 認証情報発行から初回接続まで指定秒以上経過でReject
                 if timestamp > issu_time + timedelta(seconds=FIRST_ACCESS_TIMEOUT):
@@ -62,6 +56,12 @@ def authenticate(p):
                 # TODO post_authに移動させる
                 cur.execute("UPDATE user SET authentication_time = %s WHERE user_id = %s",
                             (timestamp.strftime(TIME_FORMAT), user_id))
+            # 有効時間はconfigで設定
+            expr_time = auth_time + timedelta(seconds=EXPIRATION_TIMESPAN)
+            # 有効期限切れならReject
+            if timestamp > expr_time:
+                radlog(L_AUTH, "expired authentication user: {0}".format(user_id))
+                return RLM_MODULE_REJECT
             # 接続機器チェック
             cur.execute("SELECT mac_address FROM user_device WHERE user_id = %s", (user_id, ))
             connected_mac_addrs = [v[0] for v in cur.fetchall()]
