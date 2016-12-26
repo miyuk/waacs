@@ -54,8 +54,9 @@ def authenticate(p):
                     radlog(L_AUTH, "first access timeout")
                     return RLM_MODULE_REJECT
                 # TODO post_authに移動させる
+                auth_time = timestamp
                 cur.execute("UPDATE user SET authentication_time = %s WHERE user_id = %s",
-                            (timestamp.strftime(TIME_FORMAT), user_id))
+                            (auth_time.strftime(TIME_FORMAT), user_id))
             # 有効時間はconfigで設定
             expr_time = auth_time + timedelta(seconds=EXPIRATION_TIMESPAN)
             # 有効期限切れならReject
