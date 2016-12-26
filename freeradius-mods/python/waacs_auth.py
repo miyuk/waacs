@@ -8,8 +8,7 @@ from datetime import datetime, timedelta
 import MySQLdb as db
 
 from config import (DB, DEVICE_TBL, EXPIRATION_TIMESPAN, FIRST_ACCESS_TIMEOUT,
-                    HOST, ISSUER_TBL, MAX_DEVICES, PASSWD, TIME_FORMAT, USER,
-                    USER_TBL)
+                    HOST, ISSUER_TBL, MAX_DEVICES, PASSWD, USER, USER_TBL)
 from radiusd import (L_AUTH, L_CONS, L_DBG, L_ERR, L_INFO, L_PROXY, OP, OP_TRY,
                      RLM_MODULE_FAIL, RLM_MODULE_HANDLED, RLM_MODULE_INVALID,
                      RLM_MODULE_NOOP, RLM_MODULE_NOTFOUND, RLM_MODULE_NUMCODES,
