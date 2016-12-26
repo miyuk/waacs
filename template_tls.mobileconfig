@@ -128,10 +128,10 @@ $cert_content
 		</dict>
 	</array>
 	<key>PayloadDescription</key>
-	<string>WAACS Wi-Fi設定プロファイル(WAACS-Secure@MatchingFairを設定)
-WAACS-Secure@MatchingFairはEAP-TLSによる証明書での相互認証を行います。
+	<string>WAACS Wi-Fi設定プロファイル($ssidを設定)
+$ssidはEAP-TLSによる証明書での相互認証を行います。
 
-なお、WAACS-Secure@MatchingFairはサーバ証明書を受け入れるため、ルート証明書も同時に追加されます。</string>
+なお、$ssidはサーバ証明書を受け入れるため、ルート証明書も同時に追加されます。</string>
 	<key>PayloadDisplayName</key>
 	<string>WAACS EAP-TLS設定</string>
 	<key>PayloadIdentifier</key>
