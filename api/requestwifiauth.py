@@ -128,7 +128,7 @@ class RequestWifiAuthApi(object):
             user_id, password, serial = self.gen_credential(cur, access_issuer_id, eap_type)
             p12, expiration_time = self.gen_certificate(serial, user_id)
             logger.debug("certificate {} expiration_time {}".format(
-                p12.get_friendlyname(), expiration_time))
+                p12.get_certificate().get_subject(), expiration_time))
             p12_export = p12.export(password)
             cur.execute("INSERT INTO certificate(id, cert_filename) VALUES(%s, %s)",
                         (str(serial), os.path.join(self.client_certs_dir, user_id + ".p12")))

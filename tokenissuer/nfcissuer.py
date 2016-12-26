@@ -41,7 +41,7 @@ class NfcIssuer(Thread):
                     url = self.api_client.request_wifi_url(token)
                     logger.debug("send waacs message")
                     client.send_waacs_message(url)
-                    self.debug("activating token: %s", token)
+                    logger.debug("activating token: %s", token)
                     activation_time = self.api_client.activate_token(token)
                     logger.debug("activation time is %s", activation_time)
                     self.next_token = None
