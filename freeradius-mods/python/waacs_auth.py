@@ -3,18 +3,26 @@
 
 import re
 import traceback
-from config import *
 from datetime import datetime, timedelta
 
-import MySQLdb
+import MySQLdb as db
 
-from radiusd import *
+from config import (DB, DEVICE_TBL, EXPIRATION_TIMESPAN, FIRST_ACCESS_TIMEOUT,
+                    HOST, ISSUER_TBL, MAX_DEVICES, PASSWD, TIME_FORMAT, USER,
+                    USER_TBL)
+from radiusd import (L_AUTH, L_CONS, L_DBG, L_ERR, L_INFO, L_PROXY, OP, OP_TRY,
+                     RLM_MODULE_FAIL, RLM_MODULE_HANDLED, RLM_MODULE_INVALID,
+                     RLM_MODULE_NOOP, RLM_MODULE_NOTFOUND, RLM_MODULE_NUMCODES,
+                     RLM_MODULE_OK, RLM_MODULE_REJECT, RLM_MODULE_UPDATED,
+                     RLM_MODULE_USERLOCK, radlog, resolve)
+
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def authorize(p):
     radlog(L_INFO, "*** python authorize ***")
     radlog(L_INFO, str(p))
-    return RLM_MODULE_OK
+    return RLM_MODULE_NOOP
 
 
 def authenticate(p):
@@ -22,66 +30,53 @@ def authenticate(p):
     radlog(L_INFO, str(p))
     user_id = get_attribute(p, "User-Name")
     password = get_attribute(p, "User-Password")
-    mac_addr = get_attribute(p, "Calling-Station-Id")
-    mac_addr = format_mac_addr(mac_addr)
-    timestamp = get_attribute(p, "Event-Timestamp")
-    timestamp = " ".join(timestamp.split(" ")[:-1])  # タイムゾーン部分を削除
-    timestamp = datetime.strptime(timestamp, "%b %d %Y %H:%M:%S")
+    mac_addr = format_mac_addr(get_attribute(p, "Calling-Station-Id"))
+    tsstr = " ".join(get_attribute(p, "Event-Timestamp").split(" ")[:-1])  # タイムゾーン部分を削除
+    timestamp = datetime.strptime(tsstr, "%b %d %Y %H:%M:%S")
     ap_id = get_attribute(p, "NAS-Identifier")
     try:
-        return RLM_MODULE_OK
-        with MySQLdb.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cursor:
+        with db.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cur:
             # パスワードチェック→有効期限チェック→同時接続数チェック→認証
-            sql = "SELECT password, issuance_time, authentication_time, expiration_time FROM {0} WHERE user_id = '{1}'".format(
-                USER_TBL, user_id)
-            line_num = cursor.execute(sql)
+            line_num = cur.execute("SELECT password, issuance_time, authentication_time, \
+                                    access_issuer_id, eap_type \
+                                    FROM %s WHERE user_id = %s", (USER_TBL, user_id))
             # 登録されていなければReject
-            if line_num == 0L:
+            if not line_num:
                 radlog(L_AUTH, "not found user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
-            result = cursor.fetchone()
+            true_pass, issu_time, auth_time, issu_id, eap_type = cur.fetchone()
             # パスワードが間違っていればReject
-            if(result[0] != password):
-                radlog(
-                    L_AUTH, "mismatch password for user: {0}".format(user_id))
+            if(password != true_pass):
+                radlog(L_AUTH, "mismatch password for user: {0}".format(user_id))
                 return RLM_MODULE_REJECT
-            issuance_time, auth_time, exp_time = result[1:]
-            # すでに認証済み
-            if auth_time is None:
-                # タッチから60秒以上経過でReject
-                if timestamp > issuance_time + timedelta(AUTH_TIMEOUT):
-                    radlog(L_AUTH, "waacs authentication timeout")
+            # 有効時間はconfigで設定
+            expr_time = (auth_time + timedelta(seconds=EXPIRATION_TIMESPAN)).strftime(TIME_FORMAT)
+            # 有効期限切れならReject
+            if timestamp > expr_time:
+                radlog(L_AUTH, "expired authentication user: {0}".format(user_id))
+                return RLM_MODULE_REJECT
+            if not auth_time:
+                # 認証情報発行から初回接続まで指定秒以上経過でReject
+                if timestamp > issu_time + timedelta(seconds=FIRST_ACCESS_TIMEOUT):
+                    radlog(L_AUTH, "first access timeout")
                     return RLM_MODULE_REJECT
-                auth_time = timestamp.strftime(TIME_FORMAT)
-                exp_time = (timestamp + timedelta(hours=8)
-                            ).strftime(TIME_FORMAT)
-                sql = "UPDATE {0} SET authentication_time = '{1}', expiration_time = '{2}' WHERE user_id = '{3}'".format(
-                    USER_TBL, auth_time, exp_time, user_id)
-                cursor.execute(sql)
-            else:
-                # 有効期限切れならReject
-                if timestamp > exp_time:
-                    radlog(L_AUTH, "expired user: {0}".format(user_id))
-                    return RLM_MODULE_REJECT
+                # TODO post_authに移動させる
+                cur.execute("UPDATE %s SET authentication_time = %s WHERE user_id = %s",
+                            (USER_TBL, timestamp.strftime(TIME_FORMAT), user_id))
             # 接続機器チェック
-            sql = "SELECT mac_address FROM {0} WHERE user_id = '{1}'".format(
-                DEVICE_TBL, user_id)
-            line_num = cursor.execute(sql)
-            connected_mac_addrs = [v[0] for v in cursor.fetchall()]
-            has_auth = mac_addr in connected_mac_addrs
-            # 台数制限でReject
-            if not has_auth and line_num >= 3L:
-                radlog(L_AUTH, "limit of deveices")
-                return RLM_MODULE_REJECT
-            elif not has_auth:
+            cur.execute("SELECT mac_address FROM %s WHERE user_id = %s", (DEVICE_TBL, user_id))
+            connected_mac_addrs = [v[0] for v in cur.fetchall()]
+            if not (mac_addr in connected_mac_addrs):
+                # 台数制限でReject
+                if len(connected_mac_addrs) >= MAX_DEVICES:
+                    radlog(L_AUTH, "limit of deveices")
+                    return RLM_MODULE_REJECT
                 radlog(L_INFO, "first access device")
-                sql = "INSERT INTO {0} (user_id, mac_address, first_access_time, first_access_ap)\
-                    VALUES ('{1}', '{2}', '{3}', '{4}')".format(
-                    DEVICE_TBL, user_id, mac_addr, timestamp.strftime(TIME_FORMAT), ap_id)
-                cursor.execute(sql)
+                cur.execute("INSERT INTO %s (user_id, mac_address, first_access_time, first_access_ap) \
+                    VALUES (%s, %s, %s, %s)",
+                            (DEVICE_TBL, user_id, mac_addr, timestamp.strftime(TIME_FORMAT), ap_id))
             else:
-                radlog(
-                    L_INFO, "{0} has been already connected".format(mac_addr))
+                radlog(L_INFO, "{0} has been already connected".format(mac_addr))
             return RLM_MODULE_OK
     except Exception as e:
         radlog(L_ERR, "error: {0}".format(str(e)))
@@ -101,7 +96,7 @@ def format_mac_addr(mac):
 def post_auth(p):
     radlog(L_INFO, "*** python post_auth ***")
     radlog(L_INFO, str(p))
-    return RLM_MODULE_OK
+    return RLM_MODULE_NOOP
 
 
 def get_attribute(p, attr_name):
