@@ -9,11 +9,11 @@ import MySQLdb as db
 
 from config import (DB, DEVICE_TBL, EXPIRATION_TIMESPAN, FIRST_ACCESS_TIMEOUT,
                     HOST, ISSUER_TBL, MAX_DEVICES, PASSWD, USER, USER_TBL)
-from radiusd import (L_AUTH, L_CONS, L_DBG, L_ERR, L_INFO, L_PROXY, OP, OP_TRY,
-                     RLM_MODULE_FAIL, RLM_MODULE_HANDLED, RLM_MODULE_INVALID,
-                     RLM_MODULE_NOOP, RLM_MODULE_NOTFOUND, RLM_MODULE_NUMCODES,
-                     RLM_MODULE_OK, RLM_MODULE_REJECT, RLM_MODULE_UPDATED,
-                     RLM_MODULE_USERLOCK, radlog, resolve)
+from radiusd import (L_AUTH, L_DBG, L_ERR, L_INFO, L_PROXY, RLM_MODULE_FAIL,
+                     RLM_MODULE_HANDLED, RLM_MODULE_INVALID, RLM_MODULE_NOOP,
+                     RLM_MODULE_NOTFOUND, RLM_MODULE_NUMCODES, RLM_MODULE_OK,
+                     RLM_MODULE_REJECT, RLM_MODULE_UPDATED,
+                     RLM_MODULE_USERLOCK, radlog)
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 

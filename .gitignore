@@ -5,7 +5,7 @@
 /config/server.cfg
 
 #freeradius modules
-/python/config.py
+/freeradius-mods/python/config.py
 
 #www
 /www/waacs_qr.png
