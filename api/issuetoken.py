@@ -25,6 +25,7 @@ class IssueTokenApi(object):
         self.db = db_conf["db"]
 
     def on_post(self, req, resp):
+        now = datetime.now()
         try:
             data = json.loads(req.stream.read())
             issuer_id = data["issuer_id"]
@@ -55,12 +56,11 @@ class IssueTokenApi(object):
                 cur.execute("SELECT TRUE FROM token WHERE token = %s", (token, ))
                 if not cur.fetchone():
                     break
-            now_str = api.format_time(datetime.now())
             cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, \
                          access_type, association_ssid) VALUES(%s, %s, %s, %s, %s)",
-                        (token, now_str, issuer_id, access_type, association_ssid))
+                        (token, api.format_time(now), issuer_id, access_type, association_ssid))
             cur.execute("INSERT IGNORE INTO log (token, token_issu_time) VALUES(%s, %s)",
-                        (token, now_str))
+                        (token, now))
         logger.debug("issue token success")
-        msg = {"token": token, "token_issuance_time": now_str}
+        msg = {"token": token, "token_issuance_time": api.format_time(now)}
         resp.body = json.dumps(msg)

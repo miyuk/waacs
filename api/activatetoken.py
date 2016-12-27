@@ -59,4 +59,4 @@ class ActivateToken(object):
                 return
             cur.execute("UPDATE IGNORE log SET token_act_time = %s \
                          WHERE token = %s AND token_act_time IS NULL",
-                        (api.format_time(now), token))
+                        (now, token))

@@ -158,7 +158,7 @@ class RequestWifiAuthApi(object):
                             for x in range(32)])
         cur.execute("INSERT INTO user(user_id, password, issuance_time, access_issuer_id, eap_type) \
                      VALUES(%s, %s, %s, %s, %s)",
-                    (user_id, password, api.format_time(now), access_issuer_id, eap_type))
+                    (user_id, password, now, access_issuer_id, eap_type))
         cur.execute("SELECT LAST_INSERT_ID() FROM user")
         serial = cur.fetchone()[0]
         return user_id, password, serial

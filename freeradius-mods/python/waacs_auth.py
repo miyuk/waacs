@@ -98,9 +98,10 @@ def post_auth(p):
     radlog(L_INFO, str(p))
     user_id = get_attribute(p, "User-Name")
     tsstr = " ".join(get_attribute(p, "Event-Timestamp").split(" ")[:-1])  # タイムゾーン部分を削除
-    timestamp = datetime.strptime(tsstr, "%b %d %Y %H:%M:%S")
+    #timestamp = datetime.strptime(tsstr, "%b %d %Y %H:%M:%S")
+    timestamp = datetime.now()
     eap_type = get_attribute(p, "EAP-Type")
-    radlog("EAP type is {}".format(eap_type))
+    radlog(L_INFO, "EAP type is {}".format(eap_type))
     try:
         with db.connect(host=HOST, db=DB, user=USER, passwd=PASSWD) as cur:
             cur.execute("UPDATE IGNORE log SET cred_auth_time = %s \
