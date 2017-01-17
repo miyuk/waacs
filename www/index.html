@@ -28,40 +28,38 @@
         }
 
         #info_area {
-            width: 640px;
-            height: calc(480px - 160px);
+            width: 520px;
+            height: 400px;
             float: left;
             padding: 0px 20px;
             background-color: lightcyan;
-            font-size: 32px;
+            font-size: 28px;
         }
 
         #qr_area {
-            width: calc(800px - 640px);
-            height: calc(800px - 640px);
+            width: 200px;
+            height: 200px;
             background-color: lightyellow;
             float: right;
-            ;
             padding: 10px;
         }
 
         #qr_img {
-            height: calc(800px - 640px - (2 * 10px));
-            width: calc(800px - 640px - (2 * 10px));
+            width: calc(200px - (2 * 10px));
+            height: calc(200px - (2 * 10px));
         }
 
         #blank_area1 {
-            width: 640px;
-            height: calc(800px - 640px);
+            width: 520px;
+            height: calc(480px - 400px);
             background-color: lightpink;
             float: left;
             display: flex;
-            ;
         }
 
         #blank_area2 {
-            height: calc(480px - 160px);
-            width: calc(800px - 640px);
+            width: 200px;
+            height: calc(480px - 200px);
             background-color: lightgreen;
             float: right;
         }
@@ -208,12 +206,16 @@
             <span id="clock_area"></span>
         </p>
         <p>
-            最終更新時間:
+            更新時間:
             <span id="qr_update_time_area"></span>
         </p>
         <p>
             状態:
             <span id="status_area"></span>
+        </p>
+        <p>
+            接続番号:
+            <span id="connection_number"></span>
         </p>
     </div>
 
