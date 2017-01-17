@@ -60,10 +60,10 @@ class ApiClient(object):
                 raise RequestException("API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
             activation_time = data["token_activation_time"]
-            return activation_time
+            return activation_time, conn_num
         except Exception as e:
             logger.exception(e.message)
-            return None
+            return (None, None)
 
     def request_wifi_url(self, token):
         return "https://{0}:{1}/request_wifi_auth/{2}/".format(

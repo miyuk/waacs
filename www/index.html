@@ -41,12 +41,12 @@
             height: 200px;
             background-color: lightyellow;
             float: right;
-            padding: 10px;
+            padding: 30px;
         }
 
         #qr_img {
-            width: calc(200px - (2 * 10px));
-            height: calc(200px - (2 * 10px));
+            width: calc(200px - (2 * 30px));
+            height: calc(200px - (2 * 30px));
         }
 
         #blank_area1 {
@@ -63,8 +63,8 @@
             background-color: lightgreen;
             float: right;
         }
-        #connection_number {
-            font-size: 40px;
+        #connection_number_area {
+            font-size: 60px;
         }
     </style>
     <script type="text/javascript">
@@ -136,7 +136,7 @@
                                 qrUpdateTimeArea.innerHTML = formatDate(issuanceTime);
                                 statusArea.innerHTML = "携帯端末をかざしてください";
                             }
-                            //activation_timeが存在するとき5秒間QRコード表示
+                            //activation_timeが存在するとき10秒間QRコード表示
                             if (activationTimeStr != null) {
                                 activationTime = new Date(activationTimeStr.replace(/-/g, "/"));
                                 lastActivationTime = activationTime;
@@ -164,7 +164,7 @@
         function displayQrcode(end) {
             if (new Date().getTime() <= end) {
                 isQrDisplaying = true;
-                statusArea.innerHTML = "QRコードをスキャンしてください";
+                statusArea.innerHTML = "QRコードスキャンして下さい";
                 qrImg.style.display = "";
                 setTimeout(function() {
                     displayQrcode(end)

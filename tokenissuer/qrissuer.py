@@ -78,7 +78,7 @@ class QrIssuer(Thread):
             raise Exception("cannot activate token")
         logger.debug("activation time is %s", activation_time)
         with sqlite3.connect(self.token_db_file) as cur:
-            cur.execute("UPDATE token SET activation_time = ?, connectioni_number = ? \
+            cur.execute("UPDATE token SET activation_time = ?, connection_number = ? \
                          WHERE token = ?", (activation_time, conn_num, token))
 
     def stop(self):
