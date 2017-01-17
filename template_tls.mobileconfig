@@ -5,7 +5,10 @@
 	<key>ConsentText</key>
 	<dict>
 		<key>default</key>
-		<string>指定時間後に自動で削除されます。すぐ削除してい場合は「一般」→「プロファイル」よりプロファイルを削除してください。</string>
+		<string>
+			指定時間後に自動で削除されます。すぐ削除してい場合は「一般」→「プロファイル」よりプロファイルを削除してください。
+			接続番号は「$connection_number」です。キオスク端末の接続番号と一致するか確認してください。
+		</string>
 	</dict>
 	<key>DurationUntilRemoval</key>
 	<integer>$remaining_seconds</integer>

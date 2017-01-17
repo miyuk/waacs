@@ -63,6 +63,9 @@
             background-color: lightgreen;
             float: right;
         }
+        #connection_number {
+            font-size: 40px;
+        }
     </style>
     <script type="text/javascript">
         const GET_LATEST_TOKEN_URL = "./get_latest_token.php";
@@ -72,6 +75,7 @@
         var clockArea;
         var qrUpdateTimeArea;
         var qrCode;
+        var connNumArea;
         var lastToken = null;
         var lastIssuanceTime = null;
         var lastActivationTime = null;
@@ -87,6 +91,7 @@
             qrImg.style.display = "none";
             clockArea = document.getElementById("clock_area");
             qrUpdateTimeArea = document.getElementById("qr_update_time_area");
+            connNumArea = document.getElementById("connection_number_area");
             statusArea = document.getElementById("status_area");
             setQrcode();
             setClock();
@@ -119,6 +124,7 @@
                             var issuanceTimeStr = resp["issuance_time"];
                             issuanceTime = new Date(issuanceTimeStr.replace(/-/g, "/"));
                             var activationTimeStr = resp["activation_time"];
+                            var connNum = resp["connection_number"];
                             if (token == null) {
                                 return;
                             }
@@ -134,7 +140,8 @@
                             if (activationTimeStr != null) {
                                 activationTime = new Date(activationTimeStr.replace(/-/g, "/"));
                                 lastActivationTime = activationTime;
-                                displayQrcode(activationTime.getTime() + 5 * 1000);
+                                connNumArea.innerHTML = connNum;
+                                displayQrcode(activationTime.getTime() + 10 * 1000);
                             }
                         } catch (e) {
                             statusArea.innerHTML = "エラー: " + e.message;
@@ -215,7 +222,7 @@
         </p>
         <p>
             接続番号:
-            <span id="connection_number"></span>
+            <span id="connection_number_area"></span>
         </p>
     </div>
 

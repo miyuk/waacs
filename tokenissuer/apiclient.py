@@ -2,6 +2,7 @@
 
 import json
 import logging
+import random
 
 import requests
 from requests import RequestException
@@ -47,10 +48,12 @@ class ApiClient(object):
 
     def activate_token(self, token):
         try:
+
             url = "https://{0}:{1}/activate_token/".format(self.server_address, self.server_port)
             data = self.credential
-            data.update({"issuer_id": self.issuer_id,
-                         "token": token})
+            conn_num = "".join([random.choice("0123456789") for _ in range(5)])
+            data.update({"issuer_id": self.issuer_id, "token": token,
+                         "connection_number": conn_num})
             logger.debug("send token activation request to %s", url)
             r = requests.post(url, json.dumps(data))
             if r.status_code != requests.codes.ok:

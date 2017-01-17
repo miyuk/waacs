@@ -42,7 +42,7 @@ class NfcIssuer(Thread):
                     logger.debug("send waacs message")
                     client.send_waacs_message(url)
                     logger.debug("activating token: %s", token)
-                    activation_time = self.api_client.activate_token(token)
+                    activation_time, conn_num = self.api_client.activate_token(token)
                     logger.debug("activation time is %s", activation_time)
                     self.next_token = None
                     logger.debug("LLCP link is closing")

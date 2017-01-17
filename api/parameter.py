@@ -18,6 +18,7 @@ class Parameter:
     TTLS_PARAMETER = "ttlsParameter"
     ISSUANCE_TIME = "issuanceTime"
     EXPIRATION_TIME = "expirationTime"
+    CONNECTION_NUMBER = "connection_number"
 
     def __init__(self):
         self.ssid = None
@@ -26,6 +27,7 @@ class Parameter:
         self.ttls_parameter = None
         self.issuance_time = None
         self.expiration_time = None
+        self.connection_number = None
 
     def to_dict(self):
         dct = {}
@@ -39,6 +41,8 @@ class Parameter:
             dct[self.ISSUANCE_TIME] = api.format_time(self.issuance_time)
         if self.expiration_time:
             dct[self.EXPIRATION_TIME] = api.format_time(self.expiration_time)
+        if self.connection_number:
+            dct[self.CONNECTION_NUMBER] = self.connection_number
         return dct
 
     @classmethod
@@ -54,6 +58,8 @@ class Parameter:
             param.issuance_time = api.parse_time(dct[cls.ISSUANCE_TIME])
         if cls.EXPIRATION_TIME in dct:
             param.expiration_time = api.parse_time(dct[cls.EXPIRATION_TIME])
+        if cls.CONNECTION_NUMBER in dct:
+            param.connection_number = dct[cls.CONNECTION_NUMBER]
         return param
 
 

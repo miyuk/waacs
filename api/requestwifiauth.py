@@ -6,7 +6,7 @@ import logging
 import os
 import os.path
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import falcon
 import MySQLdb as db
@@ -31,13 +31,14 @@ def make_mobileconfig_ttls(ssid, user_id, password):
     return config.replace("$ssid", ssid).replace("$userId", user_id).replace("$password", password)
 
 
-def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass, expiration_time):
+def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass, expiration_time, conn_num):
     config = open(templete_tls_file_path).read()
     cert_format_content = base64.encodestring(cert_content)
     remaining_seconds = int((expiration_time - datetime.now()).total_seconds())
     return config.replace("$ssid", ssid).replace("$cert_name", cert_name,)\
         .replace("$cert_content", cert_format_content).replace("$cert_pass", cert_pass)\
-        .replace("$remaining_seconds", str(remaining_seconds))
+        .replace("$remaining_seconds", str(remaining_seconds))\
+        .replace("$connection_number", conn_num)
 
 
 def make_waacsconfig_ttls(ssid, user_id, password):
@@ -106,19 +107,18 @@ class RequestWifiAuthApi(object):
         logger.debug("accessed device type is {}".format(device_type))
         with db.connect(**self.db_conn_args) as cur:
             rownum = cur.execute(
-                "SELECT access_issuer_id, token_activation_time, association_ssid FROM token \
+                "SELECT access_issuer_id, token_activation_time, association_ssid, connection_number FROM token \
                  WHERE token = %s", (token, ))
             if not rownum:
                 logger.warning("not found token: %s", token)
                 resp.status = falcon.HTTP_401
                 resp.body = "Error: invalid token (deleted or unregistered)"
                 return
-            access_issuer_id, token_activation_time, association_ssid = cur.fetchone()
+            access_issuer_id, token_activation_time, association_ssid, conn_num = cur.fetchone()
             logger.debug("token {} is activated by {} at {}".format(
                 token, access_issuer_id, token_activation_time))
             # TODO because debug
-            if False:
-                # if now - token_issuance_time > timedelta(seconds=60):
+            if now - token_activation_time > timedelta(seconds=60):
                 logger.warning("expiration token: %s", token)
                 resp.status = falcon.HTTP_401
                 resp.body = "Error: expiration token"
@@ -137,7 +137,7 @@ class RequestWifiAuthApi(object):
             if device_type == "iOS":
                 resp.content_type = MIMETYPE_MOBILECONFIG
                 config = make_mobileconfig_tls(
-                    association_ssid, user_id, p12_export, password, expiration_time)
+                    association_ssid, user_id, p12_export, password, expiration_time, conn_num)
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
