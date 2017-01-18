@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import sqlite3
 from threading import Event, Thread
 from time import sleep
 
@@ -16,7 +15,6 @@ class QrIssuer(Thread):
     def __init__(self, api_client, qr_conf_dict):
         super(QrIssuer, self).__init__()
         self.api_client = api_client
-        self.token_db_file = qr_conf_dict["token_db_file"]
         self.update_inteval = int(qr_conf_dict["update_interval"])
         self.sensor_port = int(qr_conf_dict["sensor_port"])
         self.stop_event = Event()
@@ -67,9 +65,6 @@ class QrIssuer(Thread):
         if not token or not issuance_time:
             raise Exception("cannnot issue token")
         logger.debug("get token: %s at %s", token, issuance_time)
-        with sqlite3.connect(self.token_db_file) as cur:
-            cur.execute("INSERT INTO token(token, issuance_time) VALUES(?, ?)",
-                        (token, issuance_time))
         self.next_token = token
 
     def activate_token(self, token):
@@ -77,9 +72,6 @@ class QrIssuer(Thread):
         if not activation_time:
             raise Exception("cannot activate token")
         logger.debug("activation time is %s", activation_time)
-        with sqlite3.connect(self.token_db_file) as cur:
-            cur.execute("UPDATE token SET activation_time = ?, connection_number = ? \
-                         WHERE token = ?", (activation_time, conn_num, token))
 
     def stop(self):
         logger.debug("process is stopping")

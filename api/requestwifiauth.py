@@ -41,7 +41,7 @@ def make_mobileconfig_tls(ssid, cert_name, cert_content, cert_pass, expiration_t
         .replace("$connection_number", conn_num)
 
 
-def make_waacsconfig_ttls(ssid, user_id, password):
+def make_waacsconfig_ttls(ssid, user_id, password, conn_num):
     param = Parameter()
     param.ssid = ssid
     param.eap_type = TYPE_TTLS
@@ -49,6 +49,7 @@ def make_waacsconfig_ttls(ssid, user_id, password):
     ttls.user_id = user_id
     ttls.password = password
     param.ttls_parameter = ttls
+    param.connection_number = conn_num
     return json.dumps(param.to_dict())
 
 

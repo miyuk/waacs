@@ -3,6 +3,7 @@
 import json
 import logging
 import random
+import sqlite3
 
 import requests
 from requests import RequestException
@@ -25,6 +26,7 @@ class ApiClient(object):
         self.issuer_id = api_conf_dict["issuer_id"]
         self.issuer_password = api_conf_dict["issuer_password"]
         self.ssid = wifi_conf_dict["ssid"]
+        self.token_db_file = api_conf_dict["token_db_file"]
 
     def issue_token(self, access_type):
         try:
@@ -41,6 +43,9 @@ class ApiClient(object):
             data = json.loads(r.text)
             token = data["token"]
             token_issuance_time = data["token_issuance_time"]
+            with sqlite3.connect(self.token_db_file) as cur:
+                cur.execute("INSERT INTO token(token, issuance_time) VALUES(?, ?)",
+                            (token, token_issuance_time))
             return (token, token_issuance_time)
         except Exception as e:
             logger.exception(e.message)
@@ -60,6 +65,9 @@ class ApiClient(object):
                 raise RequestException("API request error: {} ({})".format(url, r.status_code))
             data = json.loads(r.text)
             activation_time = data["token_activation_time"]
+            with sqlite3.connect(self.token_db_file) as cur:
+                cur.execute("UPDATE token SET activation_time = ?, connection_number = ? \
+                             WHERE token = ?", (activation_time, conn_num, token))
             return activation_time, conn_num
         except Exception as e:
             logger.exception(e.message)
