@@ -45,11 +45,10 @@ class ActivateToken(object):
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             now = datetime.now()
-            cur.execute("UPDATE token SET token_activation_time = %s, connection_number = %s \
+            rownum = cur.execute("UPDATE token SET token_activation_time = %s, connection_number = %s \
                          WHERE token = %s",
-                        (api.format_time(now), conn_num, conn_num))
-            # if cur.fetchone():
-            if True:
+                        (api.format_time(now), conn_num, token))
+            if rownum:
                 logger.debug("activate token: {}".format(token))
                 resp.status = falcon.HTTP_200
                 msg = {"status": "OK", "token_activation_time": api.format_time(now)}
