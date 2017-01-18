@@ -27,6 +27,7 @@ class ApiClient(object):
         self.issuer_password = api_conf_dict["issuer_password"]
         self.ssid = wifi_conf_dict["ssid"]
         self.token_db_file = api_conf_dict["token_db_file"]
+        self.next_token = None
         self.issue_token()
 
     def generate_token(self, access_type):
@@ -76,7 +77,7 @@ class ApiClient(object):
             data = json.loads(r.text)
             activation_time = data["token_activation_time"]
             with sqlite3.connect(self.token_db_file) as cur:
-                cur.execute("UPDATE token SET activation_time = ?, connection_number = ? \
+                cur.execute("UPDATE token SET activation_time = ?, connection_number = ?, \
                              access_type = ? WHERE token = ?",
                             (activation_time, conn_num, access_type, token))
             return token

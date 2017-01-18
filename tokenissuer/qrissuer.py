@@ -33,14 +33,14 @@ class QrIssuer(Thread):
                         break
                     sleep(0.1)
                 logger.debug("distance sensor detects a device")
+                self.api_client.activate_token(ApiClient.TYPE_QR)
                 while True:
                     if self.stop_event.is_set():
                         return
                     elif not self.is_sensing():
                         break
                     sleep(0.1)
-                self.activate_token(ApiClient.TYPE_QR)
-                self.issue_token()
+                self.api_client.issue_token()
                 logger.info("waiting update interval: %f seconds", self.update_inteval)
                 self.stop_event.wait(self.update_inteval)
         except Exception as e:
