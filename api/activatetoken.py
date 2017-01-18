@@ -30,6 +30,7 @@ class ActivateToken(object):
             issuer_id = data["issuer_id"]
             issuer_password = data["issuer_password"]
             token = data["token"]
+            access_type = data["access_type"]
             conn_num = data["connection_number"]
         except Exception as e:
             resp.status = falcon.HTTP_401
@@ -45,9 +46,9 @@ class ActivateToken(object):
                 logger.warning("mismatch password of issuer id: %s", issuer_id)
                 return
             now = datetime.now()
-            rownum = cur.execute("UPDATE token SET token_activation_time = %s, connection_number = %s \
-                         WHERE token = %s",
-                        (api.format_time(now), conn_num, token))
+            rownum = cur.execute("UPDATE token SET token_activation_time = %s, connection_number = %s, \
+                                  access_type = %s WHERE token = %s",
+                                 (api.format_time(now), conn_num, access_type, token))
             if rownum:
                 logger.debug("activate token: {}".format(token))
                 resp.status = falcon.HTTP_200

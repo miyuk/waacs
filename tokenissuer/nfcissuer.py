@@ -19,7 +19,6 @@ class NfcIssuer(Thread):
         self.stop_event = Event()
 
     def run(self):
-        self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
         try:
             while not self.stop_event.is_set():
                 with ContactlessFrontend("usb") as clf:
@@ -37,19 +36,20 @@ class NfcIssuer(Thread):
                     th = Thread(target=llc.run)
                     th.daemon = True
                     th.start()
-                    token = self.next_token
+                    token = self.api_client.next_token
+                    if not token:
+                        logger.warning("next token is not obtained")
+                        self.api_client.issue_token()
+                        continue
                     url = self.api_client.request_wifi_url(token)
                     logger.debug("send waacs message")
                     client.send_waacs_message(url)
-                    logger.debug("activating token: %s", token)
-                    activation_time, conn_num = self.api_client.activate_token(token)
-                    logger.debug("activation time is %s", activation_time)
-                    self.next_token = None
+                    self.api_client.activate_token(ApiClient.TYPE_NFC)
                     logger.debug("LLCP link is closing")
                     th.join()
                     logger.debug("LLCP link is closed")
-                self.next_token, issuance_time = self.api_client.issue_token(ApiClient.TYPE_NFC)
-                logger.debug("get token: %s at %s", self.next_token, issuance_time)
+                self.api_client.issue_token()
+                self.stop_event.wait(10)
         except Exception as e:
             logger.exception(e)
         finally:

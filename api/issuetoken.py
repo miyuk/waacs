@@ -30,9 +30,8 @@ class IssueTokenApi(object):
             data = json.loads(req.stream.read())
             issuer_id = data["issuer_id"]
             issuer_password = data["issuer_password"]
-            access_type = data["access_type"]
             association_ssid = data["association_ssid"]
-            logger.debug("on_post for ssid %s by %s", association_ssid, access_type)
+            logger.debug("on_post for ssid %s", association_ssid)
         except Exception as e:
             logger.exception(e)
             resp.status = falcon.HTTP_401
@@ -57,8 +56,8 @@ class IssueTokenApi(object):
                 if not cur.fetchone():
                     break
             cur.execute("INSERT INTO token(token, token_issuance_time, access_issuer_id, \
-                         access_type, association_ssid) VALUES(%s, %s, %s, %s, %s)",
-                        (token, api.format_time(now), issuer_id, access_type, association_ssid))
+                         association_ssid) VALUES(%s, %s, %s, %s)",
+                        (token, api.format_time(now), issuer_id, association_ssid))
             cur.execute("INSERT IGNORE INTO log (token, token_issu_time) VALUES(%s, %s)",
                         (token, now))
         logger.debug("issue token success")
