@@ -18,7 +18,7 @@ class Parameter:
     TTLS_PARAMETER = "ttlsParameter"
     ISSUANCE_TIME = "issuanceTime"
     EXPIRATION_TIME = "expirationTime"
-    CONNECTION_NUMBER = "connection_number"
+    CONNECTION_NUMBER = "connectionNumber"
 
     def __init__(self):
         self.ssid = None
