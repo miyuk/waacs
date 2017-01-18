@@ -142,7 +142,7 @@ class RequestWifiAuthApi(object):
                 resp.body = config
             elif device_type == "Android":
                 resp.content_type = MIMETYPE_WAACSCONFIG
-                config = make_waacsconfig_ttls(association_ssid, user_id, password)
+                config = make_waacsconfig_ttls(association_ssid, user_id, password, conn_num)
                 resp.body = config
             cur.execute("UPDATE IGNORE log SET user_id = %s, cred_issu_time = %s \
                          WHERE token = %s AND user_id IS NULL AND cred_issu_time IS NULL",
