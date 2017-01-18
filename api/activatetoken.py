@@ -47,7 +47,7 @@ class ActivateToken(object):
             now = datetime.now()
             cur.execute("UPDATE token SET token_activation_time = %s, connection_number = %s \
                          WHERE token = %s",
-                        (api.format_time(now), token, conn_num))
+                        (api.format_time(now), conn_num, conn_num))
             # if cur.fetchone():
             if True:
                 logger.debug("activate token: {}".format(token))
